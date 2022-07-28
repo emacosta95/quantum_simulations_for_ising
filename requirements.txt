@@ -1,0 +1,13 @@
+python>=3.9
+
+# --------- exact diagonalization --------- #
+torch>=1.9
+
+# --------- numerical diagonalization --------- #
+-c weinbe58 omp quspin
+
+# --------- julia --------- #
+ -c conda-forge julia 
+
+# --------- others --------- #
+jupyter      # better jupyter notebooks
