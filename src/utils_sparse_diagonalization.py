@@ -1,5 +1,5 @@
 # import the sparse eigensolver
-from typing import Tuple, int,float,list,Optional
+from typing import Tuple,List,Optional
 from scipy.sparse.linalg import eigsh
 import numpy as np
 from scipy.sparse import csr_matrix
@@ -37,13 +37,13 @@ def transverse_magnetization(psi:np.array,l:int,basis:quspin.basis):
     return exp_m
 
 
-def transverse_ising_2nn_sparse_simulator(h_max:float,n_dataset:int,l:int,j1:float,j2:float,pbc:bool,z_2:bool,file_name:str)->Tuple[str,np.ndarray,np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
+def transverse_ising_2nn_sparse_simulator(h_max:int,hs:np.ndarray,n_dataset:int,l:int,j1:float,j2:float,pbc:bool,z_2:bool,file_name:str)->Tuple[str,np.ndarray,np.ndarray,np.ndarray,np.ndarray,np.ndarray]:
 
     #file_name information
     text_z2=''
     text_field=f'_{h_max}_h'
 
-    hs=np.random.uniform(0,h_max,(n_dataset,l))
+    hs=hs
     #the basis of the representation
     basis=spin_basis_1d(l)
 
