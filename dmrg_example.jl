@@ -69,6 +69,7 @@ let
     end
     dens_f=-1*x_1nn-x_2nn
     f=energy/n-dot(potential,z)/n
+
     print(length(f))
 
     npzwrite("data/temp/data.npz", Dict("density" => z, "energy" => energy, "F" => f,"density_F"=> dens_f,"potential"=>potential))
