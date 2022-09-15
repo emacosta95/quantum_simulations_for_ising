@@ -25,3 +25,4 @@ Manifest.toml
 
 # ignore the output test
 /output
+/data
