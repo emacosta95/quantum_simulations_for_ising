@@ -27,7 +27,7 @@ parser.add_argument(
     "--j",
     type=float,
     help="the coupling costant of the spin-spin interaction (default=1)",
-    default=1.,
+    default=-1.,
 )
 parser.add_argument(
     "--h_max",
@@ -42,6 +42,13 @@ parser.add_argument(
     "--pbc",
     type=bool,
     help="if True, consider the periodic boundary condition (default=True)",
+    action=argparse.BooleanOptionalAction,
+)
+
+parser.add_argument(
+    "--z2",
+    type=bool,
+    help="if True, consider the augmentation with the z2 symmetry (default=True)",
     action=argparse.BooleanOptionalAction,
 )
 parser.add_argument(
@@ -76,8 +83,17 @@ pbc_name=''
 if args.pbc:
     pbc_name='pbc_'
 
+z2_name=''
+if args.z2:
+    ss_x=np.append(ss_x,ss_x,axis=0)
+    s_z=np.append(s_z,-1*s_z,axis=0)
+    indices = np.arange(s_z.shape[0])
+    np.random.shuffle(indices)
+    ss_x=ss_x[indices]
+    s_z=s_z[indices]
+    z2_name='augmentation'
 
-name=args.file_name+f'_h_{args.h_max}_'+f'n_{args.n_dataset}_'+f'l_{args.l}_'+pbc_name+f'j_{-1*args.j}'
+name=args.file_name+f'_h_{args.h_max}_'+f'n_{args.n_dataset}_'+f'l_{args.l}_'+pbc_name+f'j_{-1*args.j}'+z2_name
 np.savez('data/correlation_1nn/'+name,density=s_z,correlation=ss_x,potential=hs)
 
 

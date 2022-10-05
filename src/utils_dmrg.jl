@@ -47,7 +47,7 @@ function dmrg_2nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_coupling::Float64
     f_tot=zeros(Float64,(ndata))
     dens_f_tot= zeros(Float64,(ndata,n))
     z_tot= zeros(Float64,(ndata,n))
-    
+    x_tot=zeros(Float64,(ndata,n))
     #create the dataset
     for i=1:ndata
         #external potential
@@ -80,6 +80,7 @@ function dmrg_2nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_coupling::Float64
 
         #compute the transverse magnetization and the density functional per site 
         z=expect(psi,"Sz")
+        x=expect(psi,"Sx")
         
         xx=correlation_matrix(psi,"Sx","Sx")
         x_1nn=zeros(Float64,(n))
@@ -117,10 +118,11 @@ function dmrg_2nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_coupling::Float64
         e_tot[i]=energy/n
         v_tot[i,:]=potential
         z_tot[i,:]=z
+        x_tot[i,:]=x
         dens_f_tot[i,:]=dens_f
         f_tot[i]=f
         
-        npzwrite(namefile, Dict("density" => z_tot, "energy" => e_tot, "F" => f_tot,"density_F"=> dens_f_tot,"potential"=>v_tot))
+        npzwrite(namefile, Dict("density" => z_tot, "energy" => e_tot, "F" => f_tot,"density_F"=> dens_f_tot,"potential"=>v_tot,"magnetization_x"=>x_tot))
 
     end
 
