@@ -14,26 +14,26 @@ let
     h_max=2.71
 
     Random.seed!(seed)
-    sites=siteinds("S=1",n) #fix the basis representation
+    sites=siteinds("S=1/2",n) #fix the basis representation
     hamiltonian=OpSum()
     potential = Vector{Float64}()
     for i=1:n-2
-        hamiltonian+=-j_coupling,"Sx",i,"Sx",i+1 #1 nearest neighbours
-        hamiltonian+=-j_coupling,"Sx",i,"Sx",i+2 #2 nearest neighbours
+        hamiltonian+=-4*j_coupling,"Sx",i,"Sx",i+1 #1 nearest neighbours
+        hamiltonian+=-4*j_coupling,"Sx",i,"Sx",i+2 #2 nearest neighbours
         h_i=rand(Uniform(0,h_max))
         push!(potential,h_i)
-        hamiltonian+=h_i,"Sz",i # external random field
+        hamiltonian+=2*h_i,"Sz",i # external random field
     end
-    hamiltonian+=-j_coupling,"Sx",n-1,"Sx",n #1 nearest neighbours
-    hamiltonian+=-j_coupling,"Sx",n-1,"Sx",1 #2 nearest neighbours
-    hamiltonian+=-j_coupling,"Sx",n,"Sx",1 #1 nearest neighbours
-    hamiltonian+=-j_coupling,"Sx",n,"Sx",2 #2 nearest neighbours
+    hamiltonian+=-4*j_coupling,"Sx",n-1,"Sx",n #1 nearest neighbours
+    hamiltonian+=-4*j_coupling,"Sx",n-1,"Sx",1 #2 nearest neighbours
+    hamiltonian+=-4*j_coupling,"Sx",n,"Sx",1 #1 nearest neighbours
+    hamiltonian+=-4*j_coupling,"Sx",n,"Sx",2 #2 nearest neighbours
     h_i=rand(Uniform(0,h_max))
     push!(potential,h_i)
-    hamiltonian+=h_i,"Sz",n-1 # external random field
+    hamiltonian+=2*h_i,"Sz",n-1 # external random field
     h_i=rand(Uniform(0,h_max))
     push!(potential,h_i)
-    hamiltonian+=h_i,"Sz",n # external random field
+    hamiltonian+=2*h_i,"Sz",n # external random field
     
     
     print(length(hamiltonian))
@@ -51,8 +51,8 @@ let
     energy, psi = dmrg(h,psi0, sweeps)
 
     #compute the transverse magnetization and the density functional per site 
-    z=expect(psi,"Sz")
-    xx=correlation_matrix(psi,"Sx","Sx")
+    z=2*expect(psi,"Sz")
+    xx=4*correlation_matrix(psi,"Sx","Sx")
     x_1nn=Vector{Float64}()
     x_2nn=Vector{Float64}()   
     for i=1:n

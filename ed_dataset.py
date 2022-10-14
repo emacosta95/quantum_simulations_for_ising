@@ -1,26 +1,30 @@
-from src.utils_sparse_diagonalization import transverse_ising_sparse_simulator
 import argparse
+
+import matplotlib.pyplot as plt
 import numpy as np
+
+from src.utils_sparse_diagonalization import transverse_ising_sparse_simulator
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument(
-    "--n_dataset", type=int, help="# of istances in the dataset (default=150000)", default=15000
+    "--n_dataset",
+    type=int,
+    help="# of istances in the dataset (default=150000)",
+    default=15000,
 )
-parser.add_argument(
-    "--l", type=int, help="size of the chain ", default=16
-)
+parser.add_argument("--l", type=int, help="size of the chain ", default=16)
 parser.add_argument(
     "--j1",
     type=float,
     help="the coupling costant of the spin-spin interaction (default=1)",
-    default=-1.,
+    default=-1.0,
 )
 parser.add_argument(
     "--j2",
     type=float,
     help="the coupling costant of the spin-spin interaction (default=1)",
-    default=-1.,
+    default=-1.0,
 )
 
 parser.add_argument(
@@ -29,7 +33,6 @@ parser.add_argument(
     help="the maximum value of the transverse magnetic field (default=e)",
     default=np.e,
 )
-
 
 
 parser.add_argument(
@@ -70,6 +73,37 @@ parser.add_argument(
 
 args = parser.parse_args()
 np.random.seed(args.seed)
-hs=np.random.uniform(0,args.h_max,size=(args.n_dataset,args.l))
-file_name,es,hs,zs,fs_dens,fs,xs=transverse_ising_sparse_simulator(h_max=args.h_max,hs=hs,n_dataset=args.n_dataset,l=args.l,j1=args.j1,j2=args.j2,z_2=args.z2,file_name=args.file_name,pbc=args.pbc,check_2nn=args.check_2nn)
-np.savez(file_name,energy=es,potential=hs,density=zs,density_F=fs_dens,F=fs,magnetization_x=xs)
+print("n_dataset=", args.n_dataset)
+hs = np.random.uniform(0, args.h_max, size=(args.n_dataset, args.l))
+file_name, es, hs, zs, fs_dens, fs, xs = transverse_ising_sparse_simulator(
+    h_max=args.h_max,
+    hs=hs,
+    n_dataset=args.n_dataset,
+    l=args.l,
+    j1=args.j1,
+    j2=args.j2,
+    z_2=args.z2,
+    file_name=args.file_name,
+    pbc=args.pbc,
+    check_2nn=args.check_2nn,
+)
+np.savez(
+    file_name,
+    energy=es,
+    potential=hs,
+    density=zs,
+    density_F=fs_dens,
+    F=fs,
+    magnetization_x=xs,
+)
+
+
+# %%
+
+data = np.load("data/dataset_dmrg/l_64_h_2.71_ndata_10.npz")
+x = data["magnetization_x"]
+
+for i in range(10):
+    plt.plot(x[i])
+    plt.show()
+# %%

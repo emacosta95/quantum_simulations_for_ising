@@ -1,43 +1,153 @@
-#%%
-import numpy as np
+# %%
 import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from tqdm import trange
 
-from src.utils_sparse_diagonalization import transverse_ising_2nn_sparse_simulator
+from src.utils_exact_diagonalization import QuantumSpinSystem
+from src.utils_sparse_diagonalization import (
+    transverse_ising_sparse_simulator,
+)
 
+l = 8
+j1 = -1
 
-data=np.load("data/dataset_dmrg/l_16_h_2.71_ndata_10.npz")
+data = np.load("data/dataset_dmrg/l_8_h_2.71_ndata_10.npz")
 
-f=data["F"]
-z=data["density"]
-dens_f=data["density_F"]
-pot=data["potential"]
-e=data['energy']
+f_dmrg = data["F"]
+z_dmrg = data["density"]
+dens_f_dmrg = data["density_F"]
+pot = data["potential"]
+e_dmrg = data["energy"]
+x_dmrg = data["magnetization_x"]
 
-#%%
-plt.plot(z)
-plt.plot(dens_f)
+# %%
+plt.plot(z_dmrg)
+plt.plot(dens_f_dmrg)
 plt.plot(pot)
 plt.show()
 # %%
+# pot = pot.reshape(1, -1)
 
-file_name,es,hs,ms,fs_dens,fs=transverse_ising_2nn_sparse_simulator(l=16,h_max=2.71,hs=pot,n_dataset=10,j1=-1,j2=-1,pbc=True,z_2=False,file_name='nothing')
+(
+    file_name,
+    e_quspin,
+    hs,
+    z_quspin,
+    fs_dens_quspin,
+    f_quspin,
+    x_quspin,
+) = transverse_ising_sparse_simulator(
+    l=8,
+    h_max=2.71,
+    hs=pot,
+    n_dataset=10,
+    j1=j1,
+    j2=-1,
+    pbc=True,
+    z_2=False,
+    file_name="nothing",
+    check_2nn=False,
+)
 
-# %%
-plt.plot(dens_f[0])
-plt.plot(fs_dens[0])
-plt.show()
 
-print(es.shape)
-print(ms.shape)
+# %% exact diagonalization
+hs = pot
+for r in trange(10):
+    device = "cpu"
+    qs = QuantumSpinSystem(l=l, device=device)
+    # hamiltonian
+    hamiltonian = torch.zeros((2 ** l, 2 ** l), device=device)
+    for k in range(l):
+        hamiltonian = (
+            hamiltonian
+            + j1 * torch.matmul(qs.s_x[k], qs.s_x[(k + 1) % l])
+            + hs[r, k] * qs.s_z[k]
+        )
+
+    e, psi = torch.linalg.eigh(hamiltonian)
+
+    m_z = []
+    m_x = []
+    for i in range(l):
+        m_z.append(
+            torch.einsum(
+                "i,ij,j->", torch.conj(psi[:, 0]
+                                       ), qs.s_z[i].to(torch.float), psi[:, 0]
+            )
+            .detach()
+            .cpu()
+            .numpy()
+        )
+        m_x.append(
+            torch.einsum(
+                "i,ij,j->", torch.conj(psi[:, 0]
+                                       ), qs.s_x[i].to(torch.float), psi[:, 0]
+            )
+            .detach()
+            .cpu()
+            .numpy()
+        )
+    m_z = np.asarray(m_z)
+    m_x = np.asarray(m_x)
+
+    t_xx = []
+    for i in range(l):
+        t_xx.append(
+            -1
+            * torch.einsum(
+                "i,ij,jk,k->",
+                torch.conj(psi[:, 0]),
+                qs.s_x[i].to(torch.float),
+                qs.s_x[(i + 1) % l].to(torch.float),
+                psi[:, 0],
+            )
+            .detach()
+            .cpu()
+            .numpy()
+            # + torch.einsum(
+            #     "i,ij,jk,k->",
+            #     torch.conj(psi[:, 0]),
+            #     qs.s_z[i].to(torch.float),
+            #     qs.s_z[(i + 2) % l].to(torch.float),
+            #     psi[:, 0],
+            # )
+            # .detach()
+            # .cpu()
+            # .numpy()
+        )
+    t_xx = np.asarray(t_xx)
+
+    if r == 0:
+        t_xx_ed = t_xx.reshape(1, -1)
+        z_ed = m_z.reshape(1, -1)
+        x_ed = m_x.reshape(1, -1)
+    else:
+        t_xx_ed = np.append(t_xx_ed, t_xx.reshape(1, -1), axis=0)
+        z_ed = np.append(z_ed, m_z.reshape(1, -1), axis=0)
+        x_ed = np.append(x_ed, m_x.reshape(1, -1), axis=0)
 # %%
 for i in range(10):
-    plt.plot(z[i],label=f'e={e[i]:.5f}')
-    plt.plot(ms[i],label=f'e={es[i]:.5f}')
+
+    plt.plot(z_dmrg[i], label="dmrg", linestyle="--", color="green")
+    plt.plot(z_ed[i], label="ed", linestyle=":", color="blue")
+    plt.plot(z_quspin[i], label="quspin", color="red")
     plt.legend()
     plt.show()
-    print(np.abs((es[i]-e[i])/e[i]))
 # %%
-print(f,fs)
+for i in range(10):
+
+    plt.plot(dens_f_dmrg[i], label="dmrg", linestyle="--", color="green")
+    plt.plot(t_xx_ed[i], label="ed", linestyle=":", color="blue")
+    plt.plot(fs_dens_quspin[i], label="quspin", color="red")
+    plt.legend()
+    plt.show()
 # %%
-print(es,e/16)
+for i in range(10):
+
+    plt.plot(x_dmrg[i], label="dmrg", linestyle="--", color="green")
+    plt.plot(x_ed[i], label="ed", linestyle=":", color="blue")
+    plt.plot(x_quspin[i], label="quspin", color="red")
+    plt.legend()
+    plt.show()
 # %%
