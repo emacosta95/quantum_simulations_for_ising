@@ -28,9 +28,8 @@ def density_of_functional_pbc(
         op = ["xx", coupling]
         static = [op]
         dynamic = []
-        m = hamiltonian(
+        m = quantum_LinearOperator(
             static,
-            dynamic,
             basis=basis,
             dtype=np.float64,
             check_symm=False,
@@ -50,9 +49,8 @@ def compute_magnetization(psi: np.array, l: int, basis: quspin.basis, direction:
         op = [direction, coupling]
         static = [op]
         dynamic = []
-        m = hamiltonian(
+        m = quantum_LinearOperator(
             static,
-            dynamic,
             basis=basis,
             dtype=np.float64,
             check_symm=False,
