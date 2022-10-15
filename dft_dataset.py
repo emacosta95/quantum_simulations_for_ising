@@ -3,7 +3,7 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.utils_sparse_diagonalization import transverse_ising_sparse_simulator
+from src.utils_sparse_diagonalization import transverse_ising_sparse_DFT, transverse_ising_sparse_Den2Magn_dataset
 
 parser = argparse.ArgumentParser()
 
@@ -34,6 +34,12 @@ parser.add_argument(
     default=np.e,
 )
 
+parser.add_argument(
+    "--eps_breaking",
+    type=float,
+    help="the maximum value of the transverse magnetic field (default=10**-2)",
+    default=10**-2,
+)
 
 parser.add_argument(
     "--pbc",
@@ -75,7 +81,7 @@ args = parser.parse_args()
 np.random.seed(args.seed)
 print("n_dataset=", args.n_dataset)
 hs = np.random.uniform(0, args.h_max, size=(args.n_dataset, args.l))
-file_name, es, hs, zs, fs_dens, fs, xs = transverse_ising_sparse_simulator(
+file_name,  hs, zs, fs_dens = transverse_ising_sparse_DFT(
     h_max=args.h_max,
     hs=hs,
     n_dataset=args.n_dataset,
@@ -86,24 +92,22 @@ file_name, es, hs, zs, fs_dens, fs, xs = transverse_ising_sparse_simulator(
     file_name=args.file_name,
     pbc=args.pbc,
     check_2nn=args.check_2nn,
+    eps_breaking=args.eps_breaking
 )
 np.savez(
     file_name,
-    energy=es,
     potential=hs,
     density=zs,
     density_F=fs_dens,
-    F=fs,
-    magnetization_x=xs,
 )
 
 
-# %%
+# # %%
 
-data = np.load("data/dataset_dmrg/l_64_h_2.71_ndata_10.npz")
-x = data["magnetization_x"]
+# data = np.load("data/dataset_dmrg/l_64_h_2.71_ndata_10.npz")
+# x = data["magnetization_x"]
 
-for i in range(10):
-    plt.plot(x[i])
-    plt.show()
-# %%
+# for i in range(10):
+#     plt.plot(x[i])
+#     plt.show()
+# # %%

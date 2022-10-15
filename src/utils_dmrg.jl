@@ -4,8 +4,9 @@ using LinearAlgebra
 using Random
 using Plots
 using NPZ
+using ProgressBars
 
-function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,ndata::Int64,namefile::String,two_nn::Bool)
+function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,ndata::Int64,eps_breaking::Float64,namefile::String,two_nn::Bool)
 
     #fix the seed
     Random.seed!(seed)
@@ -55,7 +56,7 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Fl
     z_tot= zeros(Float64,(ndata,n))
     x_tot=zeros(Float64,(ndata,n))
     #create the dataset
-    for i=1:ndata
+    for i=tqdm(1:ndata)
         #external potential
         ham_ext=OpSum()
         potential = zeros(Float64,n)
@@ -63,6 +64,10 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Fl
             h_i=rand(Uniform(0.,h_max))
             potential[j]=h_i
             ham_ext+=2*h_i,"Sz",j # external random field
+        end
+
+        for j=1:n
+            ham_ext+=2*eps_breaking,"Sx",j # to fix the invariance problem
         end
         # collect the external
         # field
@@ -82,7 +87,7 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Fl
         setcutoff!(sweeps, 1E-10)
 
         # energy values
-        energy, psi = dmrg(h,psi0, sweeps)
+        energy, psi = dmrg(h,psi0, sweeps,{"Quiet",true})
 
         #compute the transverse magnetization and the density functional per site 
         z=2*expect(psi,"Sz")

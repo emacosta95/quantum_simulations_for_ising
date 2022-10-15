@@ -5,14 +5,12 @@ import torch
 from tqdm import trange
 
 from src.utils_exact_diagonalization import QuantumSpinSystem
-from src.utils_sparse_diagonalization import (
-    transverse_ising_sparse_simulator,
-)
+from src.utils_sparse_diagonalization import transverse_ising_sparse_simulator
 
-l = 8
+l = 16
 j1 = -1
-
-data = np.load("data/dataset_dmrg/l_8_h_2.71_ndata_10.npz")
+eps_breaking = 10**-2
+data = np.load("data/dataset_dmrg/l_16_h_2.71_ndata_10.npz")
 
 f_dmrg = data["F"]
 z_dmrg = data["density"]
@@ -38,7 +36,7 @@ plt.show()
     f_quspin,
     x_quspin,
 ) = transverse_ising_sparse_simulator(
-    l=8,
+    l=16,
     h_max=2.71,
     hs=pot,
     n_dataset=10,
@@ -48,6 +46,7 @@ plt.show()
     z_2=False,
     file_name="nothing",
     check_2nn=False,
+    eps_breaking=eps_breaking
 )
 
 
@@ -62,7 +61,7 @@ for r in trange(10):
         hamiltonian = (
             hamiltonian
             + j1 * torch.matmul(qs.s_x[k], qs.s_x[(k + 1) % l])
-            + hs[r, k] * qs.s_z[k]
+            + hs[r, k] * qs.s_z[k] + eps_breaking*qs.s_x[k]
         )
 
     e, psi = torch.linalg.eigh(hamiltonian)
@@ -130,7 +129,7 @@ for r in trange(10):
 for i in range(10):
 
     plt.plot(z_dmrg[i], label="dmrg", linestyle="--", color="green")
-    plt.plot(z_ed[i], label="ed", linestyle=":", color="blue")
+    #plt.plot(z_ed[i], label="ed", linestyle=":", color="blue")
     plt.plot(z_quspin[i], label="quspin", color="red")
     plt.legend()
     plt.show()
@@ -146,7 +145,7 @@ for i in range(10):
 for i in range(10):
 
     plt.plot(x_dmrg[i], label="dmrg", linestyle="--", color="green")
-    plt.plot(x_ed[i], label="ed", linestyle=":", color="blue")
+    #plt.plot(x_ed[i], label="ed", linestyle=":", color="blue")
     plt.plot(x_quspin[i], label="quspin", color="red")
     plt.legend()
     plt.show()
