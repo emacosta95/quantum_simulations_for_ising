@@ -123,9 +123,11 @@ def transverse_ising_sparse_DFT(
         if r == 0:
             zs = z.reshape(1, -1)
             fs_dens = f_dens.reshape(1, -1)
+            es = e
         else:
             zs = np.append(zs, z.reshape(1, -1), axis=0)
             fs_dens = np.append(fs_dens, f_dens.reshape(1, -1), axis=0)
+            es = np.append(es, e)
     if z_2:
         text_z2 = "_augmentation"
         fs_dens = np.append(fs_dens, fs_dens, axis=0)
@@ -140,7 +142,7 @@ def transverse_ising_sparse_DFT(
         text_field + f"_{fs_dens.shape[0]}_n"
     )
 
-    return file_name, hs, zs, fs_dens
+    return file_name, hs, zs, fs_dens, es
 
 
 def transverse_ising_sparse_Den2Magn_dataset(
@@ -219,72 +221,70 @@ def transverse_ising_sparse_Den2Magn_dataset(
     return file_name, zs, xs
 
 
-# def transverse_ising_sparse_simulator_sample(
-#     h_max: int,
-#     hs: np.ndarray,
-#     l: int,
-#     j1: float,
-#     j2: float,
-#     pbc: bool,
-#     file_name: str,
-#     check_2nn: bool,
-# ) -> Tuple[str, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def transverse_ising_sparse_simulator_sample(
+    h_max: int,
+    hs: np.ndarray,
+    l: int,
+    j1: float,
+    j2: float,
+    pbc: bool,
+    file_name: str,
+    check_2nn: bool,
+    eps_breaking: float,
+) -> Tuple[str, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
-#     # file_name information
-#     text_z2 = ""
-#     text_field = f"{h_max:.2f}_h"
+    # file_name information
+    text_z2 = ""
+    text_field = f"{h_max:.2f}_h"
 
-#     hs = hs
-#     # the basis of the representation
-#     basis = spin_basis_1d(l)
+    hs = hs
+    # the basis of the representation
+    basis = spin_basis_1d(l)
 
-#     # the coupling terms
-#     if pbc:
-#         j_1nn = [[j1, i, (i + 1) % l] for i in range(l)]  # pbc
-#         if check_2nn:
-#             j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
-#     else:
-#         j_1nn = [[j1, i, (i + 1) % l] for i in range(l)]  # pbc
-#         if check_2nn:
-#             j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
+    # the coupling terms
+    if pbc:
+        j_1nn = [[j1, i, (i + 1) % l] for i in range(l)]  # pbc
+        if check_2nn:
+            j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
+    else:
+        j_1nn = [[j1, i, (i + 1) % l] for i in range(l)]  # pbc
+        if check_2nn:
+            j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
 
-#     h = [[hs[k], k] for k in range(l)]  # external field
-#     if check_2nn:
-#         static = [["xx", j_1nn], ["xx", j_2nn], ["z", h]]
-#     else:
-#         static = [["xx", j_1nn], ["z", h]]
-#     dynamic = []
-#     ham = hamiltonian(
-#         static,
-#         dynamic,
-#         basis=basis,
-#         dtype=np.float64,
-#         check_symm=False,
-#         check_herm=False,
-#         check_pcon=False,
-#     )
-#     e, psi_0 = ham.eigsh(k=1, sigma=-1000)
-#     x = compute_magnetization(psi_0, l=l, basis=basis, direction="x")
-#     z = compute_magnetization(psi_0, l=l, basis=basis, direction="z")
-#     print("x=", x)
-#     print("z=", z)
-#     z = np.asarray(z)
-#     x = np.asarray(x)
-#     plt.plot(psi_0)
-#     plt.show()
-#     f_dens = density_of_functional_pbc(
-#         psi_0, l=l, basis=basis, j_1=j1, j_2=j2, check_2nn=check_2nn
-#     )
-#     f_dens = np.asarray(f_dens)
-#     f = e[0] / l - np.average(z * hs)
-#     fs = f
-#     zs = z.reshape(1, -1)
-#     fs_dens = f_dens.reshape(1, -1)
-#     es = e[0] / l
-#     xs = x.reshape(1, -1)
+    h = [[hs[k], k] for k in range(l)]  # external field
+    eps_h = [[eps_breaking, k] for k in range(l)]
+    if check_2nn:
+        static = [["xx", j_1nn], ["xx", j_2nn], ["z", h]]
+    else:
+        static = [["xx", j_1nn], ["z", h], ["x", eps_h]]
+    dynamic = []
+    ham = hamiltonian(
+        static,
+        dynamic,
+        basis=basis,
+        dtype=np.float64,
+        check_symm=False,
+        check_herm=False,
+        check_pcon=False,
+    )
+    e, psi_0 = ham.eigsh(k=1)
+    x = compute_magnetization(psi_0, l=l, basis=basis, direction="x")
+    z = compute_magnetization(psi_0, l=l, basis=basis, direction="z")
+    print("x=", x)
+    print("z=", z)
+    z = np.asarray(z)
+    x = np.asarray(x)
+    plt.plot(psi_0)
+    plt.show()
+    f_dens = density_of_functional_pbc(
+        psi_0, l=l, basis=basis, j_1=j1, j_2=j2, check_2nn=check_2nn
+    )
+    f_dens = np.asarray(f_dens)
+    f = e[0] / l - np.average(z * hs)
+    fs = f
+    zs = z.reshape(1, -1)
+    fs_dens = f_dens.reshape(1, -1)
+    es = e[0] / l
+    xs = x.reshape(1, -1)
 
-#     # file_name = (
-#     #     dir + file_name + text_z2 + f"_{l}_l_" + text_field + f"_{xs.shape[0]}_n"
-#     # )
-
-#     return file_name, es, hs, zs, fs_dens, fs, xs
+    return file_name, es, hs, zs, fs_dens, fs, xs

@@ -3,7 +3,8 @@ import argparse
 import matplotlib.pyplot as plt
 import numpy as np
 
-from src.utils_sparse_diagonalization import transverse_ising_sparse_DFT, transverse_ising_sparse_Den2Magn_dataset
+from src.utils_sparse_diagonalization import (
+    transverse_ising_sparse_Den2Magn_dataset, transverse_ising_sparse_DFT)
 
 parser = argparse.ArgumentParser()
 
@@ -81,7 +82,7 @@ args = parser.parse_args()
 np.random.seed(args.seed)
 print("n_dataset=", args.n_dataset)
 hs = np.random.uniform(0, args.h_max, size=(args.n_dataset, args.l))
-file_name,  hs, zs, fs_dens = transverse_ising_sparse_DFT(
+file_name,  hs, zs, fs_dens, es = transverse_ising_sparse_DFT(
     h_max=args.h_max,
     hs=hs,
     n_dataset=args.n_dataset,
@@ -99,6 +100,7 @@ np.savez(
     potential=hs,
     density=zs,
     density_F=fs_dens,
+    energy=es,
 )
 
 

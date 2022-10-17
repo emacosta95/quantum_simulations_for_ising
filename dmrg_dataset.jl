@@ -1,19 +1,22 @@
 # import
+using LinearAlgebra
 include("src/utils_dmrg.jl")
+using ITensors
 
+BLAS.set_num_threads(10)
 # parameters
 seed=125
 linkdims=30
-n=32
+sweeps=10
+n=64
 j_coupling=-1.
-h_max=2.71
-ndata=100
-two_nn=true
+hmax=2.71
+ndata=10
+two_nn=false
 eps_breaking=10^(-2)
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
 # we need to understand
 # how to implement a string
 # format
-namefile=raw"data/dmrg_2nn/l_$n_h_$h_max_ndata_$ndata.npz"
-print(namefile)
-dmrg_nn_ising(seed,linkdims,n,j_coupling,j_coupling,h_max,ndata,eps_breaking,namefile,two_nn)
+namefile=raw"data/den2magn_dataset_1nn/test_unet_periodic_1nn_l_16_h_2.71_ndata_100.npz"
+dmrg_nn_ising(seed,linkdims,sweeps,n,j_coupling,j_coupling,hmax,ndata,eps_breaking,namefile,two_nn)

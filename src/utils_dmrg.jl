@@ -6,7 +6,7 @@ using Plots
 using NPZ
 using ProgressBars
 
-function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,ndata::Int64,eps_breaking::Float64,namefile::String,two_nn::Bool)
+function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweeps::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,ndata::Int64,eps_breaking::Float64,namefile::String,two_nn::Bool)
 
     #fix the seed
     Random.seed!(seed)
@@ -82,12 +82,12 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,n::Int64,j_1::Float64,j_2::Fl
 
     
         #fix the sweeps
-        sweeps = Sweeps(5)
+        sweeps = Sweeps(sweeps)
         setmaxdim!(sweeps, 10,20,100,100,200)
         setcutoff!(sweeps, 1E-10)
 
         # energy values
-        energy, psi = dmrg(h,psi0, sweeps,{"Quiet",true})
+        energy, psi = dmrg(h,psi0, sweeps)
 
         #compute the transverse magnetization and the density functional per site 
         z=2*expect(psi,"Sz")
