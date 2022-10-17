@@ -6,7 +6,7 @@ using Plots
 using NPZ
 using ProgressBars
 
-function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweeps::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,ndata::Int64,eps_breaking::Float64,namefile::String,two_nn::Bool)
+function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,ndata::Int64,eps_breaking::Float64,namefile::String,two_nn::Bool)
 
     #fix the seed
     Random.seed!(seed)
@@ -82,7 +82,7 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweeps::Int64,n::Int64,j_1::F
 
     
         #fix the sweeps
-        sweeps = Sweeps(sweeps)
+        sweeps = Sweeps(sweep)
         setmaxdim!(sweeps, 10,20,100,100,200)
         setcutoff!(sweeps, 1E-10)
 

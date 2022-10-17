@@ -148,13 +148,13 @@ for i in range(10):
     plt.legend()
     plt.show()
 # %%
-for i in range(10):
+# for i in range(10):
 
-    plt.plot(dens_f_dmrg[i], label="dmrg", linestyle="--", color="green")
-    plt.plot(t_xx_ed[i], label="ed", linestyle=":", color="blue")
-    plt.plot(fs_dens_quspin[i], label="quspin", color="red")
-    plt.legend()
-    plt.show()
+#     plt.plot(dens_f_dmrg[i], label="dmrg", linestyle="--", color="green")
+#     plt.plot(t_xx_ed[i], label="ed", linestyle=":", color="blue")
+#     plt.plot(fs_dens_quspin[i], label="quspin", color="red")
+#     plt.legend()
+#     plt.show()
 # %%
 for i in range(10):
 
