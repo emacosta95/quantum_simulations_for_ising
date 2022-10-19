@@ -3,46 +3,24 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 # data
-hs = [
-    0.10,
-    0.36,
-    0.61,
-    0.87,
-    1.13,
-    1.39,
-    1.65,
-    2.16,
-    2.42,
-    2.67,
-    2.94,
-    3.19,
-    3.45,
-    3.71,
-    3.97,
-    4.23,
-    4.48,
-    4.74,
-    5.6,
-    6.7,
-    7.8,
-    8.9,
-    10,
-]
+hs = [0.1, 1.2, 2.26, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.8, 10.9, 12.0]
 
 x = {}
 z = {}
+corr={}
 
 for h in hs:
-    data = np.load(f"data/dmrg_2nn/test_unet_periodic_2nn_l_32_h_{h}_ndata_100.npz")
+    data = np.load(f"data/dmrg_2nn/test_unet_periodic_2nn_l_128_h_{h}_ndata_100.npz")
     x[h] = data["magnetization_x"]
     z[h] = data["density"]
+    corr[h]=data['correlation']
 
 # %% compute the cumulant U4 in log
 u4 = []
 m2 = []
 for h in hs:
 
-    m2.append(np.average(x[h] ** 2))
+    m2.append(np.average(np.average(np.abs(x[h]), axis=-1) ** 2))
     lnm4 = np.log(np.average(x[h] ** 4, axis=-1))
     lnm2 = np.log(np.average(x[h] ** 2, axis=-1))
     lambd = lnm4 - 2 * lnm2
@@ -77,7 +55,7 @@ u42 = []
 m22 = []
 for h in hs2:
 
-    m22.append(np.average(x2[h] ** 2))
+    m22.append(np.average(np.average(np.abs(x2[h]), axis=-1) ** 2))
     lnm4 = np.log(np.average(x2[h] ** 4, axis=-1))
     lnm2 = np.log(np.average(x2[h] ** 2, axis=-1))
     lambd = lnm4 - 2 * lnm2
@@ -91,9 +69,9 @@ for h in hs2:
 #     u4.append(y)
 
 # %%
-plt.plot(hs2, u42)
-plt.show()
-plt.plot(hs2, m22)
+
+
+plt.plot(hs2*, m22)
 plt.plot(hs, m2)
 plt.axvline(2 * np.e)
 plt.show()
