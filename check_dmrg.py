@@ -9,9 +9,10 @@ from src.utils_sparse_diagonalization import transverse_ising_sparse_simulator_s
 
 l = 16
 j1 = -1
-eps_breaking = 10**-2
+eps_breaking = 10 ** -2
 data = np.load(
-    "data/dataset_dmrg/test_unet_periodic_1nn_l_16_h_2.71_ndata_10.npz")
+    "data/den2magn_dataset_1nn/test_unet_periodic_1nn_l_16_h_4.5_ndata_100.npz"
+)
 
 f_dmrg = data["F"]
 z_dmrg = data["density"]
@@ -29,15 +30,7 @@ plt.show()
 
 for i in trange(10):
 
-    (
-        file_name,
-        e,
-        h,
-        z,
-        f_dens,
-        f,
-        x,
-    ) = transverse_ising_sparse_simulator_sample(
+    (file_name, e, h, z, f_dens, f, x,) = transverse_ising_sparse_simulator_sample(
         l=16,
         h_max=2.71,
         hs=pot[i],
@@ -46,7 +39,7 @@ for i in trange(10):
         pbc=True,
         file_name="nothing",
         check_2nn=False,
-        eps_breaking=eps_breaking
+        eps_breaking=eps_breaking,
     )
 
     if i == 0:
@@ -143,7 +136,7 @@ for i in trange(10):
 for i in range(10):
 
     plt.plot(z_dmrg[i], label="dmrg", linestyle="--", color="green")
-    #plt.plot(z_ed[i], label="ed", linestyle=":", color="blue")
+    # plt.plot(z_ed[i], label="ed", linestyle=":", color="blue")
     plt.plot(z_quspin[i], label="quspin", color="red")
     plt.legend()
     plt.show()
@@ -159,7 +152,7 @@ for i in range(10):
 for i in range(10):
 
     plt.plot(x_dmrg[i], label="dmrg", linestyle="--", color="green")
-    #plt.plot(x_ed[i], label="ed", linestyle=":", color="blue")
+    # plt.plot(x_ed[i], label="ed", linestyle=":", color="blue")
     plt.plot(x_quspin[i], label="quspin", color="red")
     plt.legend()
     plt.show()

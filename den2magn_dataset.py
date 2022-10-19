@@ -2,9 +2,18 @@ import argparse
 
 import matplotlib.pyplot as plt
 import numpy as np
+import sys, os
 
-from src.utils_sparse_diagonalization import \
-    transverse_ising_sparse_Den2Magn_dataset
+os.environ[
+    "KMP_DUPLICATE_LIB_OK"
+] = "True"  # uncomment this line if omp error occurs on OSX for python 3
+os.environ["OMP_NUM_THREADS"] = str(
+    1
+)  # set number of OpenMP threads to run in parallel
+os.environ["MKL_NUM_THREADS"] = str(1)  # set number of MKL threads to run in parallel
+
+
+from src.utils_sparse_diagonalization import transverse_ising_sparse_Den2Magn_dataset
 
 parser = argparse.ArgumentParser()
 
@@ -39,7 +48,7 @@ parser.add_argument(
     "--eps_breaking",
     type=float,
     help="the maximum value of the transverse magnetic field (default=10**-2)",
-    default=10**-2,
+    default=10 ** -2,
 )
 
 parser.add_argument(
@@ -79,10 +88,12 @@ parser.add_argument(
 
 
 args = parser.parse_args()
+
+
 np.random.seed(args.seed)
 print("n_dataset=", args.n_dataset)
 hs = np.random.uniform(0, args.h_max, size=(args.n_dataset, args.l))
-file_name,  zs, xs = transverse_ising_sparse_Den2Magn_dataset(
+file_name, zs, xs = transverse_ising_sparse_Den2Magn_dataset(
     h_max=args.h_max,
     hs=hs,
     n_dataset=args.n_dataset,
@@ -93,7 +104,7 @@ file_name,  zs, xs = transverse_ising_sparse_Den2Magn_dataset(
     file_name=args.file_name,
     pbc=args.pbc,
     check_2nn=args.check_2nn,
-    eps_breaking=args.eps_breaking
+    eps_breaking=args.eps_breaking,
 )
 np.savez(
     file_name,

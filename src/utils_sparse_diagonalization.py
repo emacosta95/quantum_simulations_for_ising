@@ -138,8 +138,7 @@ def transverse_ising_sparse_DFT(
         dir = "data/dataset_2nn/"
 
     file_name = (
-        dir + file_name + text_z2 + f"_{l}_l_" +
-        text_field + f"_{fs_dens.shape[0]}_n"
+        dir + file_name + text_z2 + f"_{l}_l_" + text_field + f"_{fs_dens.shape[0]}_n"
     )
 
     return file_name, hs, zs, fs_dens, es
@@ -214,8 +213,7 @@ def transverse_ising_sparse_Den2Magn_dataset(
         dir = "data/den2magn_dataset_2nn/"
 
     file_name = (
-        dir + file_name + text_z2 + f"_{l}_l_" +
-        text_field + f"_{xs.shape[0]}_n"
+        dir + file_name + text_z2 + f"_{l}_l_" + text_field + f"_{xs.shape[0]}_n"
     )
 
     return file_name, zs, xs

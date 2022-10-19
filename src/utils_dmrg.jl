@@ -55,6 +55,7 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
     dens_f_tot= zeros(Float64,(ndata,n))
     z_tot= zeros(Float64,(ndata,n))
     x_tot=zeros(Float64,(ndata,n))
+    xxs=zeros(Float64,(ndata,n,n))
     #create the dataset
     for i=tqdm(1:ndata)
         #external potential
@@ -136,8 +137,10 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
         x_tot[i,:]=x
         dens_f_tot[i,:]=dens_f
         f_tot[i]=f
+        xxs[i,:,:]=xx
         
-        npzwrite(namefile, Dict("density" => z_tot, "energy" => e_tot, "F" => f_tot,"density_F"=> dens_f_tot,"potential"=>v_tot,"magnetization_x"=>x_tot))
+        npzwrite(namefile, Dict("density" => z_tot, "energy" => e_tot, "F" => f_tot,"density_F"=> dens_f_tot,"potential"=>v_tot,"magnetization_x"=>x_tot,
+        "correlation"=>xxs))
 
     end
 
