@@ -7,13 +7,13 @@ hs = [0.1, 1.2, 2.26, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.8, 10.9, 12.0]
 
 x = {}
 z = {}
-corr={}
+corr = {}
 
 for h in hs:
     data = np.load(f"data/dmrg_2nn/test_unet_periodic_2nn_l_128_h_{h}_ndata_100.npz")
     x[h] = data["magnetization_x"]
     z[h] = data["density"]
-    corr[h]=data['correlation']
+    corr[h] = data["correlation"]
 
 # %% compute the cumulant U4 in log
 u4 = []
@@ -70,10 +70,5 @@ for h in hs2:
 
 # %%
 
-
-plt.plot(hs2*, m22)
-plt.plot(hs, m2)
-plt.axvline(2 * np.e)
-plt.show()
 
 # %% Analysis of the correlation functions

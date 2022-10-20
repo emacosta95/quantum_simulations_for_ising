@@ -5,7 +5,7 @@ import torch
 from tqdm import trange
 
 from src.utils_exact_diagonalization import QuantumSpinSystem
-from src.utils_sparse_diagonalization import transverse_ising_sparse_simulator_sample
+from src.utils_sparse_diag import transverse_ising_sparse_simulator_sample
 
 l = 16
 j1 = -1

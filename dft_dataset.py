@@ -1,13 +1,9 @@
 import argparse
+import os
+import sys
 
 import matplotlib.pyplot as plt
 import numpy as np
-
-import argparse
-
-import matplotlib.pyplot as plt
-import numpy as np
-import sys, os
 
 os.environ[
     "KMP_DUPLICATE_LIB_OK"
@@ -17,13 +13,9 @@ os.environ["OMP_NUM_THREADS"] = str(
 )  # set number of OpenMP threads to run in parallel
 os.environ["MKL_NUM_THREADS"] = str(1)  # set number of MKL threads to run in parallel
 
-from src.utils_sparse_diagonalization import (
-    transverse_ising_sparse_Den2Magn_dataset,
-    transverse_ising_sparse_DFT,
-)
+from src.utils_sparse_diag import transverse_ising_sparse_DFT
 
 parser = argparse.ArgumentParser()
-
 parser.add_argument(
     "--n_dataset",
     type=int,

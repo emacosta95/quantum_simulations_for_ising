@@ -8,7 +8,7 @@ BLAS.set_num_threads(10)
 seed=125
 linkdims=30
 sweep=30
-n=[128,128,128,128,128]
+n=[256,256,256,256,256]
 j_coupling=-1.
 hmaxs=[1.0,1.8,2.71,3.6,4.5]
 nlinspace=5
