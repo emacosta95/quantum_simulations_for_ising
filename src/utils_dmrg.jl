@@ -62,7 +62,7 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
         ham_ext=OpSum()
         potential = zeros(Float64,n)
         for j=1:n
-            h_i=rand(Uniform(0.,h_max))
+            h_i=0.2*i#rand(Uniform(0.,h_max))
             potential[j]=h_i
             ham_ext+=2*h_i,"Sz",j # external random field
         end
@@ -88,7 +88,7 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
         setcutoff!(sweeps, 1E-10)
 
         # energy values
-        energy, psi = dmrg(h,psi0, sweeps)
+        energy, psi = dmrg(h,psi0, sweeps,outputlevel=0)
 
         #compute the transverse magnetization and the density functional per site 
         z=2*expect(psi,"Sz")
