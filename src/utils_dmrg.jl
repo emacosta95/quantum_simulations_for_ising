@@ -62,14 +62,17 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
         ham_ext=OpSum()
         potential = zeros(Float64,n)
         for j=1:n
-            h_i=0.2*i#rand(Uniform(0.,h_max))
+            h_i=rand(Uniform(0.,h_max))
             potential[j]=h_i
             ham_ext+=2*h_i,"Sz",j # external random field
         end
 
         for j=1:n
-            ham_ext+=2*eps_breaking,"Sx",j # to fix the invariance problem
-        end
+            ham_ext+=2*eps_breaking,"Sx",j # to
+        end 
+        #ham_ext+=2*eps_breaking,"Sx",1
+        #fix the invariance problem
+        #end
         # collect the external
         # field
         #push!(v_tot,potential)

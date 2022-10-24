@@ -98,7 +98,7 @@ def transverse_ising_sparse_DFT(
         h = [[hs[r, k], k] for k in range(l)]  # external field
         eps_h = [[eps_breaking, k] for k in range(l)]
         if check_2nn:
-            static = [["xx", j_1nn], ["xx", j_2nn], ["z", h], ["x", eps_h]]
+            static = [["xx", j_1nn], ["xx", j_2nn], ["z", h]]  # , ["x", eps_h]]
         else:
             static = [["xx", j_1nn], ["z", h], ["x", eps_h]]
         dynamic = []
@@ -179,9 +179,9 @@ def transverse_ising_sparse_Den2Magn_dataset(
     for r in trange(n_dataset):
 
         h = [[hs[r, k], k] for k in range(l)]  # external field
-        eps_h = [[eps_breaking, k] for k in range(l)]
+        eps_h = [[eps_breaking, 0]]
         if check_2nn:
-            static = [["xx", j_1nn], ["xx", j_2nn], ["z", h], ["x", eps_h]]
+            static = [["xx", j_1nn], ["xx", j_2nn], ["z", h]]  # ["x", eps_h]]
         else:
             static = [["xx", j_1nn], ["z", h], ["x", eps_h]]
         dynamic = []

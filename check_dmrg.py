@@ -9,9 +9,9 @@ from src.utils_sparse_diag import transverse_ising_sparse_simulator_sample
 
 l = 16
 j1 = -1
-eps_breaking = 10 ** -2
+eps_breaking = 10 ** -3
 data = np.load(
-    "data/den2magn_dataset_1nn/test_unet_periodic_1nn_l_16_h_4.5_ndata_100.npz"
+    "data/constant_field_ising_1nn_dmrg/test_unet_periodic_1nn_l_16_h_0.0_ndata_10.npz"
 )
 
 f_dmrg = data["F"]
@@ -20,6 +20,9 @@ dens_f_dmrg = data["density_F"]
 pot = data["potential"]
 e_dmrg = data["energy"]
 x_dmrg = data["magnetization_x"]
+
+#%%
+
 
 # %%
 plt.plot(z_dmrg)
@@ -151,9 +154,46 @@ for i in range(10):
 # %%
 for i in range(10):
 
-    plt.plot(x_dmrg[i], label="dmrg", linestyle="--", color="green")
+    plt.plot(np.abs(x_dmrg[i]), label="dmrg", linestyle="--", color="green")
     # plt.plot(x_ed[i], label="ed", linestyle=":", color="blue")
-    plt.plot(x_quspin[i], label="quspin", color="red")
+    plt.plot(np.abs(x_quspin[i]), label="quspin", color="red")
     plt.legend()
     plt.show()
+# %% Phase transition in a costant field case
+
+import matplotlib.pyplot as plt
+import numpy as np
+import torch
+from tqdm import trange
+
+from src.utils_exact_diagonalization import QuantumSpinSystem
+from src.utils_sparse_diag import transverse_ising_sparse_simulator_sample
+
+ls = [8, 16, 32, 64, 128]
+
+for l in ls:
+    j1 = -1
+    eps_breaking = 10 ** -2
+    data = np.load(
+        f"data/constant_field_ising_1nn_dmrg/test_unet_periodic_1nn_l_{l}_h_0.0_ndata_10.npz"
+    )
+
+    f_dmrg = data["F"]
+    z_dmrg = data["density"]
+    dens_f_dmrg = data["density_F"]
+    pot = data["potential"]
+    e_dmrg = data["energy"]
+    x_dmrg = data["magnetization_x"]
+
+    mx = np.average(np.abs(x_dmrg), axis=-1)
+    h = np.average(pot, axis=-1)
+
+    plt.plot(h, mx, label=f"size={l}")
+plt.legend(fontsize=10)
+plt.show()
+# %% with quspin
+mx_quspin = np.average(x_quspin, axis=-1)
+plt.plot(h, mx_quspin)
+plt.show()
+
 # %%
