@@ -10,12 +10,12 @@ BLAS.set_num_threads(10)
 # parameters
 seed=125
 linkdims=70
-sweep=20
-n=[24,48,96]
+sweep=30
+n=[16,24,32,48,64,80,104,128,152,256]
 j_coupling=-1.
 hmaxs=5.44
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
-ndata=100
+ndata=1000
 two_nn=true
 eps_breaking=0.
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
@@ -27,7 +27,7 @@ eps_breaking=0.
 Random.seed!(seed)
 
 # different sizes
-for j=1:3
+for j=1:10
         #name file
         namefile="data/dataset_2nn/test_unet_periodic_2nn_$(n[j])_l_$(hmaxs)_h_$(ndata)_n.npz"
         e_tot = zeros(Float64,(ndata))
