@@ -29,10 +29,10 @@ Random.seed!(seed)
 # different sizes
 for j=1:7
         #name file
-        namefile="data/dataset_2nn/test_unet_periodic_2nn_$(n)_l_$(hmaxs[j])_h_$(ndata)_n.npz"
-        v_tot = zeros(Float64,(ndata,n[j]))
-        z_tot= zeros(Float64,(ndata,n[j]))
-        zzs=zeros(Float64,(ndata,n[j],n[j]))
+        namefile="data/dmrg_h_k_map_2nn/h_k_check_2nn_$(n)_l_$(hmaxs[j])_h_$(ndata)_n.npz"
+        v_tot = zeros(Float64,(ndata,n))
+        z_tot= zeros(Float64,(ndata,n))
+        zzs=zeros(Float64,(ndata,n,n))
         for i=tqdm(1:ndata)
 
                 # initialize the field
@@ -41,8 +41,8 @@ for j=1:7
                 
                 # cumulate
                 v_tot[i,:]=h
-                z_tot[i,:]=z
-                zzs[i,:,:]=zz
+                z_tot[i,:].=z
+                zzs[i,:,:].=zz
 
                 #save
                 npzwrite(namefile, Dict("potential"=>v_tot,"density"=>z_tot,
