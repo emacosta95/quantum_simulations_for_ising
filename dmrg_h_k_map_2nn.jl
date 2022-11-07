@@ -11,9 +11,10 @@ BLAS.set_num_threads(10)
 seed=125
 linkdims=70
 sweep=30
-n=16
+n=96
 j_coupling=-1.
 hmaxs=[2*exp(1)-0.5,2*exp(1)-0.3,2*exp(1)-0.1,2*exp(1),2*exp(1)+0.1,2*exp(1)+0.3,2*exp(1)+0.5]
+pbc=true
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=100
 two_nn=true
@@ -37,7 +38,7 @@ for j=1:7
 
                 # initialize the field
                 h=rand(Uniform(0.,hmaxs[j]),n)
-                z,zz=dmrg_nn_ising(seed,linkdims,sweep,n,j_coupling,j_coupling,hmaxs[j],eps_breaking,namefile,two_nn,h)
+                z,zz=dmrg_nn_ising(seed,linkdims,sweep,n,j_coupling,j_coupling,hmaxs[j],eps_breaking,namefile,two_nn,h,pbc)
                 
                 # cumulate
                 v_tot[i,:]=h

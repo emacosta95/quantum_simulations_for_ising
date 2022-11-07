@@ -9,13 +9,13 @@ using ProgressBars
 BLAS.set_num_threads(10)
 # parameters
 seed=125
-linkdims=[10,20,30,40,50,60,70,80]
-sweep=[10,20,30,40,50,60,70,80]
-n=[128]
+linkdims=70
+sweep=20
+n=[16,32,64,128]
 j_coupling=-1.
 hmaxs=2*exp(1)
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
-ndata=1
+ndata=100
 two_nn=true
 eps_breaking=0.
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)

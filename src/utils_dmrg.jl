@@ -6,7 +6,7 @@ using Plots
 using NPZ
 using ProgressBars
 
-function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,eps_breaking::Float64,namefile::String,two_nn::Bool,hs::Array{Float64})
+function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,eps_breaking::Float64,namefile::String,two_nn::Bool,hs::Array{Float64},pbc::Bool)
 
     #fix the seed
     #Random.seed!(seed)
@@ -26,32 +26,16 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
     #    hamiltonian+=h_i,"Sz",i # external random field
     end
     ham_0+=4*j_1,"Sx",n-1,"Sx",n #1 nearest neighbours
-    if two_nn
-        ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
+    if pbc #if periodic boundary condition
+        if two_nn
+            ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
+        end
+        ham_0+=4*j_1,"Sx",n,"Sx",1 #1 nearest neighbours
+        if two_nn
+            ham_0+=4*j_2,"Sx",n,"Sx",2 #2 nearest neighbours
+        end
     end
-    ham_0+=4*j_1,"Sx",n,"Sx",1 #1 nearest neighbours
-    if two_nn
-        ham_0+=4*j_2,"Sx",n,"Sx",2 #2 nearest neighbours
-    end
-    #h_i=rand(Uniform(0,h_max))
-    #push!(potential,h_i)
-    #hamiltonian+=h_i,"Sz",n-1 # external random field
-    #h_i=rand(Uniform(0,h_max))
-    #push!(potential,h_i)
-    #hamiltonian+=h_i,"Sz",n # external random field
 
-    # there is a problem with 
-    # the types
-    # e_tot = Vector{Float64}()
-    # v_tot = [Vector{Float64}() for _ in 1:ndata]
-    # f_tot=Vector{Float64}()
-    # dens_f_tot= [Vector{Float64}() for _ in 1:ndata]
-    # z_tot= [Vector{Float64}() for _ in 1:ndata]
-    
-    # alternative
-    #create the dataset
-    #for i=tqdm(1:ndata)
-    #external potential
     ham_ext=OpSum()
     for j=1:n
         ham_ext+=2*hs[j],"Sz",j # external random field
