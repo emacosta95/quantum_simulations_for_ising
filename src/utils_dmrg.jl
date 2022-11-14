@@ -6,16 +6,14 @@ using Plots
 using NPZ
 using ProgressBars
 
-function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,eps_breaking::Float64,namefile::String,two_nn::Bool,hs::Array{Float64},pbc::Bool)
+function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}})
 
     #fix the seed
     #Random.seed!(seed)
 
     #fix the representation
-    sites=siteinds("S=1/2",n) #fix the basis representation
     #define the universal part of the hamiltonian
     ham_0=OpSum()
-    
     for i=1:n-2
         ham_0+=4*j_1,"Sx",i,"Sx",i+1 #1 nearest neighbours
         if two_nn
@@ -36,14 +34,13 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
         end
     end
 
-    ham_ext=OpSum()
     for j=1:n
-        ham_ext+=2*hs[j],"Sz",j # external random field
+        ham_0+=2*hs[j],"Sz",j # external random field
     end
 
-    for j=1:n
-        ham_ext+=2*eps_breaking,"Sx",j # to
-    end 
+    # for j=1:n
+    #     ham_ext+=2*eps_breaking,"Sx",j # to
+    # end 
     #ham_ext+=2*eps_breaking,"Sx",1
     #fix the invariance problem
     #end
@@ -51,21 +48,25 @@ function dmrg_nn_ising(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Fl
     # field
     #push!(v_tot,potential)
 
-    hamiltonian=ham_0+ham_ext
+    hamiltonian=ham_0
 
     # initialize the hamiltonian
     # as matrix product operator
     h=MPO(hamiltonian,sites) #define the hamiltonian
-    psi0=randomMPS(sites,linkdims) #initialize the product state
-
+    
 
     #fix the sweeps
     sweeps = Sweeps(sweep)
-    setmaxdim!(sweeps,5,10,20,linkdims)
+    setmaxdim!(sweeps,10,20,40,50,linkdims)
     setcutoff!(sweeps, 1E-10)
+    #noise!(sweeps,1E-06,1E-07,1E-08,1E-11,0)
+
+    #compute the initial energy value it should be the same
+    print("initial energy=",inner(psi0',h,psi0),"\n")
+
 
     # energy values
-    energy, psi = dmrg(h,psi0, sweeps,outputlevel=0)
+    energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
 
     #compute the transverse magnetization and the density functional per site 
     z=2*expect(psi,"Sz")
@@ -107,14 +108,9 @@ end
 
 
 
-function dmrg_nn_ising_check_h_k_map(seed::Int64,linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,eps_breaking::Float64,namefile::String,two_nn::Bool,hs::Array{Float64})
+function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},psi0::ITensors.MPS,sites::Vector{Index{Int64}})
 
-    #fix the seed
-    #Random.seed!(seed)
-
-    #fix the representation
-    sites=siteinds("S=1/2",n) #fix the basis representation
-    #define the universal part of the hamiltonian
+    
     ham_0=OpSum()
     
     for i=1:n-2
@@ -156,13 +152,12 @@ function dmrg_nn_ising_check_h_k_map(seed::Int64,linkdims::Int64,sweep::Int64,n:
     # initialize the hamiltonian
     # as matrix product operator
     h=MPO(hamiltonian,sites) #define the hamiltonian
-    psi0=randomMPS(sites,linkdims) #initialize the product state
-
+    
 
     #fix the sweeps
     sweeps = Sweeps(sweep)
     setmaxdim!(sweeps,5,10,20,linkdims)
-    setcutoff!(sweeps, 1E-10)
+    setcutoff!(sweeps, 1E-6)
 
     # energy values
     energy, psi = dmrg(h,psi0, sweeps,outputlevel=0)

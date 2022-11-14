@@ -11,13 +11,13 @@ BLAS.set_num_threads(10)
 seed=125
 linkdims=70
 sweep=20
-n=[16,32,64,128]
+n=[(i+1)*16 for i=1:16]
 j_coupling=-1.
-hmaxs=2*exp(1)
+hmaxs=5.44
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=100
 two_nn=true
-eps_breaking=0.
+pbc=true
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
 # we need to understand
 # how to implement a string
@@ -28,6 +28,8 @@ Random.seed!(seed)
 
 # different sizes
 for j=1:9
+        sites=siteinds("S=1/2",n[j])
+        psi0=randomMPS(sites,10) #initialize the product state
         #name file
         namefile="data/dataset_2nn/test_unet_periodic_2nn_$(n[j])_l_$(hmaxs)_h_$(ndata)_n.npz"
         e_tot = zeros(Float64,(ndata))
@@ -41,7 +43,7 @@ for j=1:9
 
                 # initialize the field
                 h=rand(Uniform(0.,hmaxs),n[j])
-                energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(seed,linkdims,sweep,n[j],j_coupling,j_coupling,hmaxs,eps_breaking,namefile,two_nn,h)
+                energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(linkdims,sweep,n[j],j_coupling,j_coupling,hmaxs,two_nn,h,pbc,psi0,sites)
                 
                 # cumulate
                 e_tot[i]=energy

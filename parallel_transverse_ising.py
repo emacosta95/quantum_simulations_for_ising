@@ -9,8 +9,10 @@ from scipy.fft import fft, ifft
 from torch import conj
 from tqdm import trange
 
-from src.utils import (nambu_diagonalization_ising_model,
-                       parallel_nambu_diagonalization_ising_model)
+from src.utils import (
+    nambu_diagonalization_ising_model,
+    parallel_nambu_diagonalization_ising_model,
+)
 
 # quantum transverse ising model 1d
 torch.manual_seed(42)
@@ -37,7 +39,7 @@ parser.add_argument(
     help="if True, prepare the train dataset (default=True)",
     action=argparse.BooleanOptionalAction,
 )
-parser.add_argument("--l", type=int, help="size of the chain ", default=64)
+parser.add_argument("--l", type=int, help="size of the chain ", default=16)
 parser.add_argument(
     "--j",
     type=float,
