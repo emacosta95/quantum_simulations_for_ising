@@ -168,3 +168,123 @@ function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::
     zz=4*correlation_matrix(psi,"Sz","Sz")
     return z,zz
 end
+
+ 
+
+function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},psi0::ITensors.MPS,sites::Vector{Index{Int64}})
+
+    
+    ham_0=OpSum()
+    
+    for i=1:n-2
+        ham_0+=4*j_1,"Sx",i,"Sx",i+1 #1 nearest neighbours
+        if two_nn
+            ham_0+=4*j_2,"Sx",i,"Sx",i+2 #2 nearest neighbours
+        end
+    #    h_i=rand(Uniform(0,h_max))
+    #    push!(potential,h_i)
+    #    hamiltonian+=h_i,"Sz",i # external random field
+    end
+    ham_0+=4*j_1,"Sx",n-1,"Sx",n #1 nearest neighbours
+    if two_nn
+        ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
+    end
+    ham_0+=4*j_1,"Sx",n,"Sx",1 #1 nearest neighbours
+    if two_nn
+        ham_0+=4*j_2,"Sx",n,"Sx",2 #2 nearest neighbours
+    end
+
+    #external potential
+    ham_ext=OpSum()
+    for j=1:n
+        ham_ext+=2*hs[j],"Sz",j # external random field
+    end
+
+
+    #ham_ext+=2*eps_breaking,"Sx",1
+    #fix the invariance problem
+    #end
+    # collect the external
+    # field
+    #push!(v_tot,potential)
+
+    hamiltonian=ham_0+ham_ext
+
+    # initialize the hamiltonian
+    # as matrix product operator
+    h=MPO(hamiltonian,sites) #define the hamiltonian
+    
+
+    #fix the sweeps
+    sweeps = Sweeps(sweep)
+    setmaxdim!(sweeps,5,10,20,linkdims)
+    setcutoff!(sweeps, 1E-10)
+
+    # energy values
+    energy, psi = dmrg(h,psi0, sweeps,outputlevel=0)
+
+        #compute the transverse magnetization and the density functional per site 
+    z=2*expect(psi,"Sz")
+    
+    xx=4*correlation_matrix(psi,"Sx","Sx")
+    x_1nn=zeros(Float64,(n))
+    x_2nn=zeros(Float64,(n))   
+    for j=1:n
+        if j==n 
+            # push!(x_1nn,xx[j,1])
+            # push!(x_,xx[j,2])
+            x_1nn[j]=xx[j,1]
+            x_2nn[j]=xx[j,2]
+        elseif j==n-1
+            # push!(x_1nn,xx[j,j+1])
+            # push!(x_2nn,xx[j,1])
+            x_1nn[j]=xx[j,j+1]
+            x_2nn[j]=xx[j,1]
+        else
+            # push!(x_1nn,xx[j,j+1])
+            # push!(x_2nn,xx[j,j+2])
+            x_1nn[j]=xx[j,j+1]
+            x_2nn[j]=xx[j,j+2]
+        end
+    end
+    if two_nn
+        dens_f=j_1*(x_1nn+x_2nn)
+    else
+        dens_f=j_2*x_1nn
+    end
+
+    #compute the transverse magnetization and the density functional per site 
+    # correlation
+    zxx=zeros((n,n))
+    psi_dag=dag(psi)
+    
+    for i=1:n
+        for r=1:n-2
+            f_op_1=OpSum()
+            f_op_2=OpSum()
+            f_op_1+=j_1,"Sz",i,"Sx",r,"Sx",r+1
+            f_op_2+=j_1,"Sz",i,"Sx",r,"Sx",r+2
+            f_op_1=MPO(f_op_1,sites)
+            f_op_2=MPO(f_op_2,sites)
+            zxx[i,r]=8*inner(psi',f_op_1,psi)+8*inner(psi',f_op_2,psi)
+        end
+        if pbc
+            f_op_1=OpSum()
+            f_op_2=OpSum()
+            f_op_1+=j_1,"Sz",i,"Sx",n-1,"Sx",n
+            f_op_2+=j_1,"Sz",i,"Sx",n-1,"Sx",1
+            f_op_1=MPO(f_op_1,sites)
+            f_op_2=MPO(f_op_2,sites)
+            zxx[i,n-1]=8*inner(psi',f_op_1,psi)+8*inner(psi',f_op_2,psi)
+            f_op_1=OpSum()
+            f_op_2=OpSum()
+            f_op_1+=j_1,"Sz",i,"Sx",n,"Sx",1
+            f_op_2+=j_1,"Sz",i,"Sx",n,"Sx",2
+            f_op_1=MPO(f_op_1,sites)
+            f_op_2=MPO(f_op_2,sites)
+            zxx[i,n]=8*inner(psi',f_op_1,psi)+8*inner(psi',f_op_2,psi)
+        end
+    end
+    
+    return zxx,z,dens_f
+end

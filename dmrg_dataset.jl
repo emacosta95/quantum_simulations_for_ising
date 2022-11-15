@@ -9,13 +9,13 @@ using ProgressBars
 BLAS.set_num_threads(10)
 # parameters
 seed=125
-linkdims=70
+linkdims=100
 sweep=20
-n=[(i+1)*16 for i=1:16]
+n=[(i)*16 for i=1:1]
 j_coupling=-1.
 hmaxs=5.44
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
-ndata=100
+ndata=1000
 two_nn=true
 pbc=true
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
@@ -27,11 +27,11 @@ pbc=true
 Random.seed!(seed)
 
 # different sizes
-for j=1:9
+for j=1:length(n)
         sites=siteinds("S=1/2",n[j])
         psi0=randomMPS(sites,10) #initialize the product state
         #name file
-        namefile="data/dataset_2nn/test_unet_periodic_2nn_$(n[j])_l_$(hmaxs)_h_$(ndata)_n.npz"
+        namefile="data/dataset_2nn/test_dataset_141122/test_unet_periodic_2nn_$(n[j])_l_$(hmaxs)_h_$(ndata)_n.npz"
         e_tot = zeros(Float64,(ndata))
         v_tot = zeros(Float64,(ndata,n[j]))
         f_tot=zeros(Float64,(ndata))
