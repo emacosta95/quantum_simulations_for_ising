@@ -8,7 +8,7 @@ using ProgressBars
 # fix the number of threads
 BLAS.set_num_threads(10)
 # parameters
-seed=125
+seeds=[12,35,356,145,98,236,659]
 linkdims=[100,200,300,400]
 sweep=range(1,20)
 n=64
@@ -26,26 +26,29 @@ eps_breaking=0.
 # format
 
 #fix the seed
-Random.seed!(seed)
+Random.seed!(seeds[1])
 #seedRNG(seed)
 
 
 # initialize the field
 h=rand(Uniform(0.,hmaxs),n)
 #h=hmaxs*ones(n)
-sites=siteinds("S=1/2",n) #fix the basis representation
-if technical_check
+
+# different sizes
+for m=1:length(seeds)
+    Random.seed!(seeds[m])
+    sites=siteinds("S=1/2",n) #fix the basis representation
+    if technical_check
         states = [ "Dn" for k=1:n]
         psi0 = MPS(sites,states)
     else
         psi0=randomMPS(sites,10) #initialize the product state
     end
 
-# different sizes
-for j=1:length(linkdims)
-    for r=1:length(sweep)
+    for j=1:length(linkdims)
+        for r=1:length(sweep)
         #name file
-        namefile="data/check_dmrg/test_unet_periodic_2nn_$(n)_l_$(hmaxs)_h_$(ndata)_n_$(sweep[r])_sweep_$(linkdims[j])_bonddim.npz"
+        namefile="data/check_dmrg/test_unet_periodic_2nn_$(n)_l_$(hmaxs)_h_$(ndata)_n_$(sweep[r])_sweep_$(linkdims[j])_bonddim_$(seeds[m])_seed.npz"
         e_tot = zeros(Float64,(ndata))
         v_tot = zeros(Float64,(ndata,n))
         f_tot=zeros(Float64,(ndata))
@@ -70,6 +73,7 @@ for j=1:length(linkdims)
                 #save
                 npzwrite(namefile, Dict("density" => z_tot, "energy" => e_tot, "F" => f_tot,"density_F"=> dens_f_tot,"potential"=>v_tot,"magnetization_x"=>x_tot,
                 "correlation"=>xxs))
+            end
         end
     end
 end
