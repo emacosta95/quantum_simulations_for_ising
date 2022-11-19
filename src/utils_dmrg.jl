@@ -107,11 +107,31 @@ function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::F
 end
 
 
+function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index{Int64}},nreplica::Int64)
+    """ Dmrg operation for different initial radom states"""
+    #fix the sweeps
+    sweeps = Sweeps(sweep)
+    setmaxdim!(sweeps,10,20,40,50,linkdims)
+    setcutoff!(sweeps, 1E-10)
+    eng_min::Float64=100000.
+    psi_min=nothing #initialize the state that will have minimum energy
+    # we could parallelize this part but 
+    # i think is difficult
+    for i=1:nreplica
+        psi0=randomMPS(sites,10) #fix the linkdim to 10
+        energy, psi = dmrg(hamiltonian,psi0, sweeps,outputlevel=0)
+        if energy<eng_min
+            eng_min=energy
+            psi_min=psi
+        end
+    end
+    return eng_min,psi_min
+end 
 
-function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},psi0::ITensors.MPS,sites::Vector{Index{Int64}})
-
-    
+function initialize_hamiltonian(j_1::Float64,j_2::Float64,hs::Array{Float64},two_nn::Bool,pbc::Bool,sites::Vector{Index{Int64}})
+    #initialize the hamiltonian
     ham_0=OpSum()
+    n=length(hs)
     
     for i=1:n-2
         ham_0+=4*j_1,"Sx",i,"Sx",i+1 #1 nearest neighbours
@@ -137,30 +157,30 @@ function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::
         ham_ext+=2*hs[j],"Sz",j # external random field
     end
 
-    for j=1:n
-        ham_ext+=2*eps_breaking,"Sx",j # to
-    end 
-    #ham_ext+=2*eps_breaking,"Sx",1
-    #fix the invariance problem
-    #end
-    # collect the external
-    # field
-    #push!(v_tot,potential)
-
     hamiltonian=ham_0+ham_ext
 
     # initialize the hamiltonian
     # as matrix product operator
     h=MPO(hamiltonian,sites) #define the hamiltonian
+
+    return h
+end 
+
+function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64})
+
+    
+    #fix the sites
+    sites=siteinds("S=1/2",n) 
+    #fix the representation
+    #define the universal part of the hamiltonian
+    h=initialize_hamiltonian(j_1,j_2,hs,two_nn,pbc,sites)
     
 
-    #fix the sweeps
-    sweeps = Sweeps(sweep)
-    setmaxdim!(sweeps,5,10,20,linkdims)
-    setcutoff!(sweeps, 1E-6)
+
 
     # energy values
-    energy, psi = dmrg(h,psi0, sweeps,outputlevel=0)
+    #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
+    energy,psi=dmrg_replica(h,sweep,sites,nreplica)
 
     #compute the transverse magnetization and the density functional per site 
     z=2*expect(psi,"Sz")
@@ -171,57 +191,20 @@ end
 
  
 
-function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},psi0::ITensors.MPS,sites::Vector{Index{Int64}})
+function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64)
 
-    
-    ham_0=OpSum()
-    
-    for i=1:n-2
-        ham_0+=4*j_1,"Sx",i,"Sx",i+1 #1 nearest neighbours
-        if two_nn
-            ham_0+=4*j_2,"Sx",i,"Sx",i+2 #2 nearest neighbours
-        end
-    #    h_i=rand(Uniform(0,h_max))
-    #    push!(potential,h_i)
-    #    hamiltonian+=h_i,"Sz",i # external random field
-    end
-    ham_0+=4*j_1,"Sx",n-1,"Sx",n #1 nearest neighbours
-    if two_nn
-        ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
-    end
-    ham_0+=4*j_1,"Sx",n,"Sx",1 #1 nearest neighbours
-    if two_nn
-        ham_0+=4*j_2,"Sx",n,"Sx",2 #2 nearest neighbours
-    end
-
-    #external potential
-    ham_ext=OpSum()
-    for j=1:n
-        ham_ext+=2*hs[j],"Sz",j # external random field
-    end
-
-
-    #ham_ext+=2*eps_breaking,"Sx",1
-    #fix the invariance problem
-    #end
-    # collect the external
-    # field
-    #push!(v_tot,potential)
-
-    hamiltonian=ham_0+ham_ext
-
-    # initialize the hamiltonian
-    # as matrix product operator
-    h=MPO(hamiltonian,sites) #define the hamiltonian
+    #fix the sites
+    sites=siteinds("S=1/2",n) 
+    #fix the representation
+    #define the universal part of the hamiltonian
+    h=initialize_hamiltonian(j_1,j_2,hs,two_nn,pbc,sites)
     
 
-    #fix the sweeps
-    sweeps = Sweeps(sweep)
-    setmaxdim!(sweeps,5,10,20,linkdims)
-    setcutoff!(sweeps, 1E-10)
+
 
     # energy values
-    energy, psi = dmrg(h,psi0, sweeps,outputlevel=0)
+    #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
+    energy,psi=dmrg_replica(h,sweep,sites,nreplica)
 
         #compute the transverse magnetization and the density functional per site 
     z=2*expect(psi,"Sz")
@@ -287,4 +270,58 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
     end
     
     return zxx,z,dens_f
+end
+
+
+function dmrg_nn_ising_composable(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,nreplica::Int64)
+
+    #fix the sites
+    sites=siteinds("S=1/2",n) 
+    #fix the representation
+    #define the universal part of the hamiltonian
+    h=initialize_hamiltonian(j_1,j_2,hs,two_nn,pbc,sites)
+    
+
+
+
+    # energy values
+    #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
+    energy,psi=dmrg_replica(h,sweep,sites,nreplica)
+
+    #compute the transverse magnetization and the density functional per site 
+    z=2*expect(psi,"Sz")
+    x=2*expect(psi,"Sx")
+    
+    xx=4*correlation_matrix(psi,"Sx","Sx")
+    x_1nn=zeros(Float64,(n))
+    x_2nn=zeros(Float64,(n))   
+    for j=1:n
+        if j==n 
+            # push!(x_1nn,xx[j,1])
+            # push!(x_,xx[j,2])
+            x_1nn[j]=xx[j,1]
+            x_2nn[j]=xx[j,2]
+        elseif j==n-1
+            # push!(x_1nn,xx[j,j+1])
+            # push!(x_2nn,xx[j,1])
+            x_1nn[j]=xx[j,j+1]
+            x_2nn[j]=xx[j,1]
+        else
+            # push!(x_1nn,xx[j,j+1])
+            # push!(x_2nn,xx[j,j+2])
+            x_1nn[j]=xx[j,j+1]
+            x_2nn[j]=xx[j,j+2]
+        end
+    end
+    if two_nn
+        dens_f=j_coupling*(x_1nn+x_2nn)
+    else
+        dens_f=j_coupling*x_1nn
+    end
+    f=energy/n-dot(hs,z)/n
+    #print(length(f))
+
+    #print("type of energy/n ",typeof(h),"\n")    
+    # alternative method
+    return energy/n, hs,z,x,dens_f,f,xx
 end

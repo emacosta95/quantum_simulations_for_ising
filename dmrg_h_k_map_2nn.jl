@@ -17,7 +17,8 @@ hmaxs=[2*exp(1)-0.5,2*exp(1)-0.3,2*exp(1)-0.1,2*exp(1),2*exp(1)+0.1,2*exp(1)+0.3
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=100
 two_nn=true
-
+pbc=true
+nreplica=5
 # we need to understand
 # how to implement a string
 # format
@@ -26,8 +27,6 @@ two_nn=true
 Random.seed!(seed)
 # different sizes
 for k=1:length(n)
-        sites=siteinds("S=1/2",n[k]) #fix the basis representation
-        psi0=randomMPS(sites,10) #initialize the product state
         for j=1:length(hmaxs)
                 #name file
                 namefile="data/dmrg_h_k_map_2nn/h_k_check_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
@@ -38,7 +37,7 @@ for k=1:length(n)
 
                         # initialize the field
                         h=rand(Uniform(0.,hmaxs[j]),n[k])
-                        z,zz=dmrg_nn_ising_check_h_k_map(linkdims,sweep,n[k],j_coupling,j_coupling,hmaxs[j],two_nn,h,psi0,sites)
+                        z,zz=dmrg_nn_ising_check_h_k_map(linkdims,sweep,n[k],j_coupling,j_coupling,hmaxs[j],two_nn,pbc,h,nreplica)
                         
                         # cumulate
                         for g=1:n[k]

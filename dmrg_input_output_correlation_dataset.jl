@@ -16,8 +16,10 @@ j_coupling=-1.
 hmaxs=[5.44]
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=100
+nreplica=5
 two_nn=true
 pbc=true
+
 
 # we need to understand
 # how to implement a string
@@ -40,7 +42,7 @@ for k=1:length(n)
 
                         # initialize the field
                         h=rand(Uniform(0.,hmaxs[j]),n[k])
-                        zxx,z,f=dmrg_nn_ising_input_output_map(linkdims,sweep,n[k],j_coupling,j_coupling,hmaxs[j],two_nn,pbc,h,psi0,sites)
+                        zxx,z,f=dmrg_nn_ising_input_output_map(linkdims,sweep,n[k],j_coupling,j_coupling,hmaxs[j],two_nn,pbc,h,nreplica)
                         
                         # cumulate
                         for g=1:n[k]

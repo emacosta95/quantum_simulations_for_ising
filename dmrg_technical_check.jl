@@ -11,7 +11,7 @@ BLAS.set_num_threads(10)
 seeds=[12,35,356,145,98,236,659]
 linkdims=[100,200,300,400]
 sweep=range(1,20)
-n=64
+n=256
 j_coupling=-1.
 hmaxs=2*exp(1)
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
