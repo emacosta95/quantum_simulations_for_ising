@@ -115,7 +115,7 @@ h_max = args.h_max
 for i, h in enumerate(h_max):
     print(f"h_max={h:1f}")
     hs = np.random.uniform(0, h, (n_dataset, l))
-    hs, ms, _, f, fm, e = parallel_nambu_diagonalization_ising_model(
+    _, ms, _, f, fm, e = parallel_nambu_diagonalization_ising_model(
         nbatch=args.nbatch,
         l=l,
         j_coupling=j_coupling,
@@ -157,6 +157,7 @@ if args.train:
     ms_tot = ms_tot[p]
     fm_tot = fm_tot[p]
     f_tot = f_tot[p]
+    hs_tot = hs_tot[p]
     print(f_tot.shape, ms_tot.shape)
     np.savez(
         f"data/dataset_1nn/train_"
@@ -168,7 +169,7 @@ if args.train:
         density=ms_tot,
         density_F=fm_tot,
         F=f_tot,
-        potential=hs,
+        potential=hs_tot,
     )
 else:
     np.savez(
@@ -180,7 +181,7 @@ else:
         density=ms_tot,
         density_F=fm_tot,
         F=f_tot,
-        potential=hs,
+        potential=hs_tot,
         energy=e_tot,
     )
 
