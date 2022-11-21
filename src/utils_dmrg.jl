@@ -107,7 +107,7 @@ function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::F
 end
 
 
-function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index{Int64}},nreplica::Int64)
+function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index{Int64}},nreplica::Int64,linkdims::Int64)
     """ Dmrg operation for different initial radom states"""
     #fix the sweeps
     sweeps = Sweeps(sweep)
@@ -123,8 +123,10 @@ function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index
         if energy<eng_min
             eng_min=energy
             psi_min=psi
+            print("energy min=$eng_min , energy=$energy \n")
         end
     end
+    print(inner(psi_min',hamiltonian,psi_min))
     return eng_min,psi_min
 end 
 
@@ -286,7 +288,7 @@ function dmrg_nn_ising_composable(linkdims::Int64,sweep::Int64,n::Int64,j_1::Flo
 
     # energy values
     #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
-    energy,psi=dmrg_replica(h,sweep,sites,nreplica)
+    energy,psi=dmrg_replica(h,sweep,sites,nreplica,linkdims)
 
     #compute the transverse magnetization and the density functional per site 
     z=2*expect(psi,"Sz")

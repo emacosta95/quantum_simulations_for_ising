@@ -168,6 +168,7 @@ if args.train:
         density=ms_tot,
         density_F=fm_tot,
         F=f_tot,
+        potential=hs,
     )
 else:
     np.savez(
