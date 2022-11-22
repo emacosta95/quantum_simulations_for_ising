@@ -9,9 +9,9 @@ using ProgressBars
 BLAS.set_num_threads(10)
 # parameters
 seeds=[12,35,356,145,98,236,659]
-linkdims=[100,200,300,400]
+linkdims=[200]
 sweep=range(1,20)
-n=64
+n=128
 j_coupling=-1.
 hmaxs=2*exp(1)
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
@@ -20,7 +20,7 @@ two_nn=true
 pbc=true
 technical_check=false
 eps_breaking=0.
-replica=50
+replica=5
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
 # we need to understand
 # how to implement a string
@@ -61,7 +61,7 @@ for m=1:length(seeds)
 
                 # energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,psi0,sites)
                 #dmrg_replica
-                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,5)
+                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,replica)
                 
 
 

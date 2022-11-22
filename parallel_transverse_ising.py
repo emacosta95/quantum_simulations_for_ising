@@ -160,7 +160,7 @@ if args.train:
     hs_tot = hs_tot[p]
     print(f_tot.shape, ms_tot.shape)
     np.savez(
-        f"data/dataset_1nn/train_"
+        f"data/dataset_1nn/"
         + args.file_name
         + text_z2
         + f"_{l}_l_"
@@ -173,7 +173,7 @@ if args.train:
     )
 else:
     np.savez(
-        f"data/dataset_1nn/valid_"
+        f"data/dataset_1nn/"
         + args.file_name
         + f"_{l}_l_"
         + text_field

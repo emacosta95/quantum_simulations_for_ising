@@ -112,13 +112,14 @@ function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index
     #fix the sweeps
     sweeps = Sweeps(sweep)
     setmaxdim!(sweeps,10,20,40,50,linkdims)
-    setcutoff!(sweeps, 1E-10)
+    setcutoff!(sweeps, 1E-12)
     eng_min::Float64=100000.
     psi_min=nothing #initialize the state that will have minimum energy
     # we could parallelize this part but 
     # i think is difficult
     for i=1:nreplica
         psi0=randomMPS(sites,10) #fix the linkdim to 10
+        noise!(sweeps,1E-05,1E-06,1E-06,1E-06,1E-07,1E-08,0)
         energy, psi = dmrg(hamiltonian,psi0, sweeps,outputlevel=0)
         if energy<eng_min
             eng_min=energy

@@ -31,7 +31,7 @@ Random.seed!(seed)
 for j=1:length(n)
 
         #name file
-        namefile="data/dataset_2nn/test_dataset_191122/test_unet_periodic_2nn_$(n[j])_l_$(hmaxs)_h_$(ndata)_n.npz"
+        namefile="data/dataset_2nn/test_dataset_221122/test_unet_periodic_2nn_$(n[j])_l_$(hmaxs)_h_$(ndata)_n.npz"
         e_tot = zeros(Float64,(ndata))
         v_tot = zeros(Float64,(ndata,n[j]))
         f_tot=zeros(Float64,(ndata))
