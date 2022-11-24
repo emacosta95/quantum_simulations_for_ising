@@ -6,7 +6,7 @@ using Plots
 using NPZ
 using ProgressBars
 
-function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}})
+function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,omega::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}})
 
     #fix the seed
     #Random.seed!(seed)
@@ -131,7 +131,7 @@ function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index
     return eng_min,psi_min
 end 
 
-function initialize_hamiltonian(j_1::Float64,j_2::Float64,hs::Array{Float64},two_nn::Bool,pbc::Bool,sites::Vector{Index{Int64}})
+function initialize_hamiltonian(j_1::Float64,j_2::Float64,omega::Float64,hs::Array{Float64},two_nn::Bool,pbc::Bool,sites::Vector{Index{Int64}})
     #initialize the hamiltonian
     ham_0=OpSum()
     n=length(hs)
@@ -160,6 +160,11 @@ function initialize_hamiltonian(j_1::Float64,j_2::Float64,hs::Array{Float64},two
         ham_ext+=2*hs[j],"Sz",j # external random field
     end
 
+    # external longitudinal field
+    for j=1:n
+        ham_ext+=2*omega,"Sx",j # external random field
+    end
+
     hamiltonian=ham_0+ham_ext
 
     # initialize the hamiltonian
@@ -169,14 +174,14 @@ function initialize_hamiltonian(j_1::Float64,j_2::Float64,hs::Array{Float64},two
     return h
 end 
 
-function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64})
+function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,Omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64})
 
     
     #fix the sites
     sites=siteinds("S=1/2",n) 
     #fix the representation
     #define the universal part of the hamiltonian
-    h=initialize_hamiltonian(j_1,j_2,hs,two_nn,pbc,sites)
+    h=initialize_hamiltonian(j_1,j_2,omega,hs,two_nn,pbc,sites)
     
 
 
@@ -194,13 +199,13 @@ end
 
  
 
-function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64)
+function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64)
 
     #fix the sites
     sites=siteinds("S=1/2",n) 
     #fix the representation
     #define the universal part of the hamiltonian
-    h=initialize_hamiltonian(j_1,j_2,hs,two_nn,pbc,sites)
+    h=initialize_hamiltonian(j_1,j_2,omega,hs,two_nn,pbc,sites)
     
 
 
@@ -276,13 +281,13 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
 end
 
 
-function dmrg_nn_ising_composable(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,nreplica::Int64)
+function dmrg_nn_ising_composable(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,nreplica::Int64)
 
     #fix the sites
     sites=siteinds("S=1/2",n) 
     #fix the representation
     #define the universal part of the hamiltonian
-    h=initialize_hamiltonian(j_1,j_2,hs,two_nn,pbc,sites)
+    h=initialize_hamiltonian(j_1,j_2,omega,hs,two_nn,pbc,sites)
     
 
 
