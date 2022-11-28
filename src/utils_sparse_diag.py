@@ -15,14 +15,16 @@ from tqdm import trange
 from quspin.tools.lanczos import lanczos_full, lanczos_iter, lin_comb_Q_T, expm_lanczos
 
 
-def lanczos_method(hamiltonian: quspin.operators.hamiltonian, basis: quspin.basis):
+def lanczos_method(
+    hamiltonian: quspin.operators.hamiltonian, basis: quspin.basis, dimension: int
+):
     """Quspin Code for the Lanczos method --> http://weinbe58.github.io/QuSpin/examples/example20.html#example20-label"""
     ###### apply Lanczos
     # initial state for Lanczos algorithm
     v0 = np.random.normal(0, 1, size=basis.Ns)
     v0 = v0 / np.linalg.norm(v0)
     #
-    m_GS = 10  # Krylov subspace dimension
+    m_GS = dimension  # Krylov subspace dimension
     #
     # Lanczos finds the largest-magnitude eigenvalues:
     e, v, q_t = lanczos_full(hamiltonian, v0, m_GS)
@@ -203,6 +205,7 @@ def transverse_ising_sparse_DFT_lanczos_method(
     file_name: str,
     check_2nn: bool,
     eps_breaking: float,
+    dimension: int,
 ) -> Tuple[str, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
 
     # file_name information
@@ -242,7 +245,7 @@ def transverse_ising_sparse_DFT_lanczos_method(
             check_pcon=False,
         )
         # e, psi_0 = ham.eigsh(k=1)  # , sigma=-1000)
-        e, psi_0 = lanczos_method(hamiltonian=ham, basis=basis)
+        e, psi_0 = lanczos_method(hamiltonian=ham, basis=basis, dimension=dimension)
         z = compute_magnetization(psi_0, l=l, basis=basis, direction="z")
 
         z = np.asarray(z)

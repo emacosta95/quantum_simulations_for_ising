@@ -212,7 +212,7 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
 
     # energy values
     #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
-    energy,psi=dmrg_replica(h,sweep,sites,nreplica)
+    energy,psi=dmrg_replica(h,sweep,sites,nreplica,linkdims)
 
         #compute the transverse magnetization and the density functional per site 
     z=2*expect(psi,"Sz")
