@@ -174,7 +174,7 @@ function initialize_hamiltonian(j_1::Float64,j_2::Float64,omega::Float64,hs::Arr
     return h
 end 
 
-function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,Omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64})
+function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64})
 
     
     #fix the sites

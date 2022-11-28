@@ -37,7 +37,7 @@ for k=1:length(n)
 
                         # initialize the field
                         h=rand(Uniform(0.,hmaxs[j]),n[k])
-                        z,zz=dmrg_nn_ising_check_h_k_map(linkdims,sweep,n[k],j_coupling,j_coupling,hmaxs[j],two_nn,pbc,h,nreplica)
+                        z,zz=dmrg_nn_ising_check_h_k_map(linkdims,sweep,n[k],j_coupling,j_coupling,omega,hmaxs[j],two_nn,pbc,h,nreplica)
                         
                         # cumulate
                         for g=1:n[k]

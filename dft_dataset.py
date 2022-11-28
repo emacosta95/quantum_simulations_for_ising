@@ -40,14 +40,14 @@ parser.add_argument(
     "--h_max",
     type=float,
     help="the maximum value of the transverse magnetic field (default=e)",
-    default=np.e,
+    default=2 * np.e,
 )
 
 parser.add_argument(
     "--eps_breaking",
     type=float,
     help="the maximum value of the transverse magnetic field (default=10**-2)",
-    default=10 ** -2,
+    default=0,
 )
 
 parser.add_argument(
