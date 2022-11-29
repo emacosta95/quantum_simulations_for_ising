@@ -9,11 +9,14 @@ os.environ[
     "KMP_DUPLICATE_LIB_OK"
 ] = "True"  # uncomment this line if omp error occurs on OSX for python 3
 os.environ["OMP_NUM_THREADS"] = str(
-    1
+    3
 )  # set number of OpenMP threads to run in parallel
-os.environ["MKL_NUM_THREADS"] = str(1)  # set number of MKL threads to run in parallel
+os.environ["MKL_NUM_THREADS"] = str(3)  # set number of MKL threads to run in parallel
 
-from src.utils_sparse_diag import transverse_ising_sparse_DFT
+from src.utils_sparse_diag import (
+    transverse_ising_sparse_DFT,
+    transverse_ising_sparse_DFT_lanczos_method,
+)
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -65,6 +68,21 @@ parser.add_argument(
 )
 
 parser.add_argument(
+    "--lanczos",
+    type=bool,
+    help="if True, use the lanczos algorithm (default=True)",
+    action=argparse.BooleanOptionalAction,
+)
+
+
+parser.add_argument(
+    "--dimension",
+    type=int,
+    help="dimension of the lanczos subspace (default=True)",
+    default=50,
+)
+
+parser.add_argument(
     "--check_2nn",
     type=bool,
     help="if True, consider the 2nn Ising Model (default=True)",
@@ -90,19 +108,35 @@ args = parser.parse_args()
 np.random.seed(args.seed)
 print("n_dataset=", args.n_dataset)
 hs = np.random.uniform(0, args.h_max, size=(args.n_dataset, args.l))
-file_name, hs, zs, fs_dens, es = transverse_ising_sparse_DFT(
-    h_max=args.h_max,
-    hs=hs,
-    n_dataset=args.n_dataset,
-    l=args.l,
-    j1=args.j1,
-    j2=args.j2,
-    z_2=args.z2,
-    file_name=args.file_name,
-    pbc=args.pbc,
-    check_2nn=args.check_2nn,
-    eps_breaking=args.eps_breaking,
-)
+if not (args.lanczos):
+    file_name, hs, zs, fs_dens, es = transverse_ising_sparse_DFT(
+        h_max=args.h_max,
+        hs=hs,
+        n_dataset=args.n_dataset,
+        l=args.l,
+        j1=args.j1,
+        j2=args.j2,
+        z_2=args.z2,
+        file_name=args.file_name,
+        pbc=args.pbc,
+        check_2nn=args.check_2nn,
+        eps_breaking=args.eps_breaking,
+    )
+else:
+    file_name, hs, zs, fs_dens, es = transverse_ising_sparse_DFT_lanczos_method(
+        h_max=args.h_max,
+        hs=hs,
+        n_dataset=args.n_dataset,
+        l=args.l,
+        j1=args.j1,
+        j2=args.j2,
+        z_2=args.z2,
+        file_name=args.file_name,
+        pbc=args.pbc,
+        check_2nn=args.check_2nn,
+        eps_breaking=args.eps_breaking,
+        dimension=args.dimension,
+    )
 np.savez(
     file_name,
     potential=hs,

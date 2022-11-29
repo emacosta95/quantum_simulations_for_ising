@@ -11,7 +11,7 @@ BLAS.set_num_threads(10)
 seed=125
 linkdims=100
 sweep=20
-n=[16,24,32,64,96,128,136,256]
+n=[16,24,32,64,96,128]
 j_coupling=-1.
 hmaxs=[2*exp(1)-0.5,2*exp(1)-0.3,2*exp(1)-0.1,2*exp(1),2*exp(1)+0.1,2*exp(1)+0.3,2*exp(1)+0.5]
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
@@ -19,6 +19,7 @@ ndata=100
 two_nn=true
 pbc=true
 nreplica=5
+omega=0.
 # we need to understand
 # how to implement a string
 # format
@@ -29,7 +30,7 @@ Random.seed!(seed)
 for k=1:length(n)
         for j=1:length(hmaxs)
                 #name file
-                namefile="data/dmrg_h_k_map_2nn/h_k_check_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
+                namefile="data/dmrg_h_k_map_2nn/dataset_281122/h_k_check_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
                 v_tot = zeros(Float64,(ndata,n[k]))
                 z_tot= zeros(Float64,(ndata,n[k]))
                 zzs=zeros(Float64,(ndata,n[k],n[k]))

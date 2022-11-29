@@ -33,7 +33,7 @@ def lanczos_method(
     # compute ground state vector
     psi_GS_lanczos = lin_comb_Q_T(v[:, 0], q_t)
 
-    return e, psi_GS_lanczos
+    return e[0], psi_GS_lanczos
 
 
 def density_of_functional_pbc(

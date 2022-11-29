@@ -8,13 +8,13 @@ using ProgressBars
 # fix the number of threads
 BLAS.set_num_threads(10)
 # parameters
-seed=125
+seed=425
 linkdims=100
 sweep=20
-n=[16,32,64,128]
+n=[128]
 j_coupling=1.
 omega=0.01
-hmaxs=[2.5,2.6,exp(1),2.8,2.9]
+hmaxs=[2.6,2.7,2.8,2.9,3.0,3.1,3.2,3.3,3.4,3.5]
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=100
 two_nn=false
@@ -33,7 +33,7 @@ for k=1:length(hmaxs)
         for j=1:length(n)
 
                 #name file
-                namefile="data/1nn_xx_z_x/dataset_241122/test_periodic_$(n[j])_l_$(hmaxs[k])_h_$(ndata)_n.npz"
+                namefile="data/1nn_xx_z_x/dataset_281122/test_periodic_$(omega)_omega_$(n[j])_l_$(hmaxs[k])_h_$(ndata)_n.npz"
                 e_tot = zeros(Float64,(ndata))
                 v_tot = zeros(Float64,(ndata,n[j]))
                 f_tot=zeros(Float64,(ndata))

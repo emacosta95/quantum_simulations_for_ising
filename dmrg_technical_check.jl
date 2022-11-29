@@ -13,13 +13,13 @@ linkdims=[200]
 sweep=range(1,20)
 n=128
 j_coupling=-1.
-hmaxs=2*exp(1)
+hmaxs=exp(1)
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=1
-two_nn=true
+two_nn=false
 pbc=true
 technical_check=false
-eps_breaking=0.
+omega=0.01
 replica=5
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
 # we need to understand
@@ -61,7 +61,7 @@ for m=1:length(seeds)
 
                 # energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,psi0,sites)
                 #dmrg_replica
-                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,replica)
+                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,omega,hmaxs,two_nn,h,pbc,replica)
                 
 
 

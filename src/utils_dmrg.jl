@@ -118,7 +118,7 @@ function dmrg_replica(hamiltonian::ITensors.MPO,sweep::Int64,sites::Vector{Index
     # we could parallelize this part but 
     # i think is difficult
     for i=1:nreplica
-        psi0=randomMPS(sites,10) #fix the linkdim to 10
+        psi0=randomMPS(sites,2) #fix the linkdim to 10
         noise!(sweeps,1E-05,1E-06,1E-06,1E-06,1E-07,1E-08,0)
         energy, psi = dmrg(hamiltonian,psi0, sweeps,outputlevel=0)
         if energy<eng_min
@@ -174,7 +174,7 @@ function initialize_hamiltonian(j_1::Float64,j_2::Float64,omega::Float64,hs::Arr
     return h
 end 
 
-function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64})
+function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64)
 
     
     #fix the sites
@@ -188,7 +188,7 @@ function dmrg_nn_ising_check_h_k_map(linkdims::Int64,sweep::Int64,n::Int64,j_1::
 
     # energy values
     #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
-    energy,psi=dmrg_replica(h,sweep,sites,nreplica)
+    energy,psi=dmrg_replica(h,sweep,sites,nreplica,linkdims)
 
     #compute the transverse magnetization and the density functional per site 
     z=2*expect(psi,"Sz")
@@ -257,7 +257,10 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
             f_op_2+=j_1,"Sz",i,"Sx",r,"Sx",r+2
             f_op_1=MPO(f_op_1,sites)
             f_op_2=MPO(f_op_2,sites)
-            zxx[i,r]=8*inner(psi',f_op_1,psi)+8*inner(psi',f_op_2,psi)
+            zxx[i,r]=8*inner(psi',f_op_1,psi)
+            if two_nn
+                zxx[i,r]=zxx[i,r]+8*inner(psi',f_op_2,psi)
+            end
         end
         if pbc
             f_op_1=OpSum()
@@ -266,14 +269,20 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
             f_op_2+=j_1,"Sz",i,"Sx",n-1,"Sx",1
             f_op_1=MPO(f_op_1,sites)
             f_op_2=MPO(f_op_2,sites)
-            zxx[i,n-1]=8*inner(psi',f_op_1,psi)+8*inner(psi',f_op_2,psi)
+            zxx[i,n-1]=8*inner(psi',f_op_1,psi)
+            if two_nn
+                zxx[i,n-1]=zxx[i,n-1]+8*inner(psi',f_op_2,psi)
+            end
             f_op_1=OpSum()
             f_op_2=OpSum()
             f_op_1+=j_1,"Sz",i,"Sx",n,"Sx",1
             f_op_2+=j_1,"Sz",i,"Sx",n,"Sx",2
             f_op_1=MPO(f_op_1,sites)
             f_op_2=MPO(f_op_2,sites)
-            zxx[i,n]=8*inner(psi',f_op_1,psi)+8*inner(psi',f_op_2,psi)
+            zxx[i,n]=8*inner(psi',f_op_1,psi)
+            if two_nn 
+                zxx[i,n]=zxx[i,n]+8*inner(psi',f_op_2,psi)
+            end
         end
     end
     
