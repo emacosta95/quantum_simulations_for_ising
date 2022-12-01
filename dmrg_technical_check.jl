@@ -13,14 +13,16 @@ linkdims=[200]
 sweep=range(1,20)
 n=128
 j_coupling=-1.
-hmaxs=exp(1)
+hmaxs=2*exp(1)
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=1
-two_nn=false
+two_nn=true
 pbc=true
 technical_check=false
-omega=0.01
-replica=5
+set_noise=false
+omega=0.
+replica=1
+init_bonddim=2048
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
 # we need to understand
 # how to implement a string
@@ -49,7 +51,7 @@ for m=1:length(seeds)
     for j=1:length(linkdims)
         for r=1:length(sweep)
         #name file
-        namefile="data/check_dmrg/test_unet_periodic_2nn_$(replica)_replica_$(n)_l_$(hmaxs)_h_$(ndata)_n_$(sweep[r])_sweep_$(linkdims[j])_bonddim_$(seeds[m])_seed.npz"
+        namefile="data/check_dmrg/test_unet_periodic_2nn_noiseless_$(init_bonddim)_init_bonddim_$(replica)_replica_$(n)_l_$(hmaxs)_h_$(ndata)_n_$(sweep[r])_sweep_$(linkdims[j])_bonddim_$(seeds[m])_seed.npz"
         e_tot = zeros(Float64,(ndata))
         v_tot = zeros(Float64,(ndata,n))
         f_tot=zeros(Float64,(ndata))
@@ -61,7 +63,7 @@ for m=1:length(seeds)
 
                 # energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,psi0,sites)
                 #dmrg_replica
-                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,omega,hmaxs,two_nn,h,pbc,replica)
+                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,omega,hmaxs,two_nn,h,pbc,replica,init_bonddim,set_noise,psi0,sites)
                 
 
 

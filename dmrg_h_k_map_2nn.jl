@@ -8,7 +8,7 @@ using ProgressBars
 # fix the number of threads
 BLAS.set_num_threads(10)
 # parameters
-seed=125
+seed=425
 linkdims=100
 sweep=20
 n=[16,24,32,64,96,128]
@@ -30,7 +30,7 @@ Random.seed!(seed)
 for k=1:length(n)
         for j=1:length(hmaxs)
                 #name file
-                namefile="data/dmrg_h_k_map_2nn/dataset_281122/h_k_check_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
+                namefile="data/dmrg_h_k_map_2nn/dataset_291122/h_k_check_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
                 v_tot = zeros(Float64,(ndata,n[k]))
                 z_tot= zeros(Float64,(ndata,n[k]))
                 zzs=zeros(Float64,(ndata,n[k],n[k]))
