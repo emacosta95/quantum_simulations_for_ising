@@ -10,12 +10,12 @@ BLAS.set_num_threads(10)
 # parameters
 seed=425
 linkdims=200
-init_bonddim=128
+init_bonddim=512
 sweep=20
-n=[16,24,32,64,96,128]
+n=[256,512]
 j_coupling=-1.
-hmaxs=[2*exp(1)-0.5,2*exp(1)-0.3,2*exp(1)-0.1,2*exp(1),2*exp(1)+0.1,2*exp(1)+0.3,2*exp(1)+0.5]
-#hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
+#hmaxs=[2*exp(1)-0.5,2*exp(1)-0.3,2*exp(1)-0.1,2*exp(1),2*exp(1)+0.1,2*exp(1)+0.3,2*exp(1)+0.5]
+hmaxs=LinRange(0.1,12.,20) # for studying the phase transition
 ndata=100
 two_nn=true
 pbc=true
