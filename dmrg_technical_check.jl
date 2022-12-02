@@ -22,7 +22,7 @@ technical_check=false
 set_noise=false
 omega=0.
 replica=1
-init_bonddim=2048
+init_bonddim=256
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
 # we need to understand
 # how to implement a string
@@ -45,7 +45,7 @@ for m=1:length(seeds)
         states = [ "Dn" for k=1:n]
         psi0 = MPS(sites,states)
     else
-        psi0=randomMPS(sites,10) #initialize the product state
+        psi0=randomMPS(sites,init_bonddim) #initialize the product state
     end
 
     for j=1:length(linkdims)
@@ -63,7 +63,7 @@ for m=1:length(seeds)
 
                 # energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(linkdims[j],sweep[r],n,j_coupling,j_coupling,hmaxs,two_nn,h,pbc,psi0,sites)
                 #dmrg_replica
-                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,omega,hmaxs,two_nn,h,pbc,replica,init_bonddim,set_noise,psi0,sites)
+                energy,potential,z,x,dens_f,f,xx= dmrg_nn_ising_composable(linkdims[j],sweep[r],n,j_coupling,j_coupling,omega,hmaxs,two_nn,h,pbc,replica,set_noise,psi0,sites)
                 
 
 
