@@ -15,9 +15,9 @@ sweep=20
 n=[16,24,32,64,96,128,136,256]
 j_coupling=-1.
 omega=0.
-hmaxs=[exp(1)]
+hmaxs=1.#[exp(1)]
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
-ndata=100
+ndata=1
 nreplica=1
 two_nn=false
 pbc=true
@@ -37,7 +37,7 @@ for k=1:length(n)
         psi0=randomMPS(sites,init_bonddim) #initialize the product state
         for j=1:length(hmaxs)
                 #name file
-                namefile="data/input_output_map/dataset_021222/input_output_1nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
+                namefile="data/input_output_map/dataset_021222/input_output_1nn_uniform_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
                 v_tot = zeros(Float64,(ndata,n[k]))
                 z_tot= zeros(Float64,(ndata,n[k]))
                 f_tot=zeros(Float64,(ndata,n[k]))
@@ -46,6 +46,7 @@ for k=1:length(n)
 
                         # initialize the field
                         h=rand(Uniform(0.,hmaxs[j]),n[k])
+                        h=hmaxs[j]*ones(n[k])
                         zxx,z,f=dmrg_nn_ising_input_output_map(linkdims,sweep,n[k],j_coupling,j_coupling,omega,hmaxs[j],two_nn,pbc,h,nreplica,set_noise,psi0,sites)
                         
                         # cumulate
