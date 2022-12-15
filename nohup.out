@@ -1,0 +1,36 @@
+Traceback (most recent call last):
+  File "/home/ecosta/quantum_simulations_for_ising/binder_cumulant_computation.py", line 3, in <module>
+    from src.utils_sparse_diag import binder_cumulant_computation
+  File "/home/ecosta/quantum_simulations_for_ising/src/utils_sparse_diag.py", line 7, in <module>
+    import quspin
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/quspin/__init__.py", line 3, in <module>
+    from . import operators
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/quspin/operators/__init__.py", line 54, in <module>
+    from .quantum_operator_core import *
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/quspin/operators/quantum_operator_core.py", line 8, in <module>
+    from ..tools.matvec import _matvec
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/quspin/tools/__init__.py", line 87, in <module>
+    from . import Floquet
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/quspin/tools/Floquet.py", line 14, in <module>
+    from joblib import delayed,Parallel
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/__init__.py", line 120, in <module>
+    from .parallel import Parallel
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/parallel.py", line 26, in <module>
+    from ._parallel_backends import (FallbackToBackend, MultiprocessingBackend,
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/_parallel_backends.py", line 17, in <module>
+    from .pool import MemmappingPool
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/pool.py", line 31, in <module>
+    from ._memmapping_reducer import get_memmapping_reducers
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/_memmapping_reducer.py", line 37, in <module>
+    from .externals.loky.backend import resource_tracker
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/externals/loky/__init__.py", line 13, in <module>
+    from .reusable_executor import get_reusable_executor
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/externals/loky/reusable_executor.py", line 11, in <module>
+    from .process_executor import ProcessPoolExecutor, EXTRA_QUEUED_CALLS
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/externals/loky/process_executor.py", line 84, in <module>
+    from .backend.utils import recursive_terminate, get_exitcodes_terminated_worker
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/joblib/externals/loky/backend/utils.py", line 10, in <module>
+    import psutil
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/psutil/__init__.py", line 1274, in <module>
+    [x for x in dir(Process) if not x.startswith('_') and x not in
+KeyboardInterrupt

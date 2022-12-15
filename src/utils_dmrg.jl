@@ -308,6 +308,35 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
 end
 
 
+function dmrg_nn_ising_binder_cumulant(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64,set_noise::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}},m_4::ITensors.MPO)
+
+    #fix the sites
+    #sites=siteinds("S=1/2",n) 
+    #fix the representation
+    #define the universal part of the hamiltonian
+    h=initialize_hamiltonian(j_1,j_2,omega,hs,two_nn,pbc,sites)
+    
+    # energy values
+    #energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
+    #energy,psi=dmrg_replica(h,sweep,sites,nreplica,linkdims,init_bonddim,set_noise)
+    sweeps = Sweeps(sweep)
+    setmaxdim!(sweeps,10,20,40,50,50,60,linkdims)
+    setcutoff!(sweeps, 1E-10)
+    if set_noise
+        noise!(sweeps,1E-05,1E-06,1E-06,1E-06,1E-07,1E-08,0)
+    end
+    energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
+    
+    xx=4*correlation_matrix(psi,"Sx","Sx")
+    x_2=mean(xx)^2
+    x_4=inner(psi',m_4,psi)
+
+    
+    return 1-(x_4/(3*x_2))
+end
+
+
+
 function dmrg_nn_ising_composable(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,nreplica::Int64,set_noise::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}})
 
     #fix the sites

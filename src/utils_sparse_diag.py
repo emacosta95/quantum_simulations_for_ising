@@ -1,6 +1,6 @@
 # import the sparse eigensolver
 import argparse
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Dict, Callable
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -13,6 +13,74 @@ from scipy.sparse import csr_matrix
 from scipy.sparse.linalg import eigsh
 from tqdm import trange
 from quspin.tools.lanczos import lanczos_full, lanczos_iter, lin_comb_Q_T, expm_lanczos
+
+
+def ising_coupling(
+    adj: Dict, l: int, basis: quspin.basis, direction: str
+) -> quspin.operators.hamiltonian:
+
+    coupling = []
+    for i, j in adj.keys():
+        coupling.add([adj[i, j], i, j])
+    static = [[direction, coupling]]
+    dynamic = []
+
+    ham = hamiltonian(
+        static,
+        dynamic,
+        basis=basis,
+        dtype=np.float64,
+        check_symm=False,
+        check_herm=False,
+        check_pcon=False,
+    )
+    return ham
+
+
+def ising_external_field(
+    h: np.ndarray, l: int, basis: quspin.basis, direction: str
+) -> quspin.operators.hamiltonian:
+
+    coupling = []
+    for i in range(l):
+        coupling.add([h[i], i])
+    static = [[direction, coupling]]
+    dynamic = []
+
+    ham = hamiltonian(
+        static,
+        dynamic,
+        basis=basis,
+        dtype=np.float64,
+        check_symm=False,
+        check_herm=False,
+        check_pcon=False,
+    )
+    return ham
+
+
+def adj_generator(l: int, f: Callable) -> Dict:
+
+    adj = {}
+    for i in range(l):
+        jdx, values = f(i, l)
+        for k, j in enumerate(jdx):
+            adj[(i, j)] = values[k]
+    return adj
+
+
+def get_gs(
+    ham: quspin.operators.hamiltonian,
+    eightype: str,
+    lanczos_dim: Optional[int] = None,
+    basis: quspin.basis = None,
+) -> Tuple[float, np.ndarray]:
+
+    if eightype == "Lanczos":
+        e, psi = lanczos_method(hamiltonian=ham, basis=basis, dimension=lanczos_dim)
+    else:
+        e, psi = ham.eigsh(k=1)
+    return e, psi
 
 
 def lanczos_method(
@@ -110,6 +178,41 @@ def compute_correlation(psi: np.array, l: int, basis: quspin.basis, direction: s
     return exp_m
 
 
+def compute_binder_cumulant(l: int, basis: quspin.basis):
+
+    coupling_x2 = []
+    coupling_x4 = []
+    for i in range(l):
+        for j in range(l):
+            coupling_x2.append([1, i, j])
+            for k in range(l):
+                for q in range(l):
+                    coupling_x4.append([1, i, j, k, q])
+    op_x2 = ["xx", coupling_x2]
+    op_x4 = ["xxxx", coupling_x4]
+    static_x2 = [op_x2]
+    static_x4 = [op_x4]
+
+    mx2 = quantum_LinearOperator(
+        static_x2,
+        basis=basis,
+        dtype=np.float64,
+        check_symm=False,
+        check_herm=False,
+        check_pcon=False,
+    )
+    mx4 = quantum_LinearOperator(
+        static_x4,
+        basis=basis,
+        dtype=np.float64,
+        check_symm=False,
+        check_herm=False,
+        check_pcon=False,
+    )
+
+    return mx2, mx4
+
+
 def transverse_ising_sparse_DFT(
     h_max: int,
     hs: np.ndarray,
@@ -191,6 +294,76 @@ def transverse_ising_sparse_DFT(
     )
 
     return file_name, hs, zs, fs_dens, es
+
+
+def binder_cumulant_computation(
+    h_max: int,
+    hs: np.ndarray,
+    n_dataset: int,
+    l: int,
+    j1: float,
+    j2: float,
+    pbc: bool,
+    z_2: bool,
+    file_name: str,
+    check_2nn: bool,
+    eps_breaking: float,
+) -> Tuple[str, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+
+    # file_name information
+    text_z2 = ""
+    text_field = f"{h_max:.2f}_h"
+
+    hs = hs
+    # the basis of the representation
+    basis = spin_basis_1d(l)
+
+    # the coupling terms
+    if pbc:
+        j_1nn = [[j1, i, (i + 1) % l] for i in range(l)]  # pbc
+        if check_2nn:
+            j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
+    else:
+        j_1nn = [[j1, i, (i + 1) % l] for i in range(l)]  # pbc
+        if check_2nn:
+            j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
+
+    mx2, mx4 = compute_binder_cumulant(l=l, basis=basis)
+    for r in trange(n_dataset):
+
+        h = [[hs[r, k], k] for k in range(l)]  # external field
+        eps_h = [[eps_breaking, k] for k in range(l)]
+        if check_2nn:
+            static = [["xx", j_1nn], ["xx", j_2nn], ["z", h]]  # , ["x", eps_h]]
+        else:
+            static = [["xx", j_1nn], ["z", h], ["x", eps_h]]
+        dynamic = []
+        ham = hamiltonian(
+            static,
+            dynamic,
+            basis=basis,
+            dtype=np.float64,
+            check_symm=False,
+            check_herm=False,
+            check_pcon=False,
+        )
+        e, psi_0 = ham.eigsh(k=1)  # , sigma=-1000)
+
+        x2 = mx2.expt_value(psi_0)
+        x4 = mx4.expt_value(psi_0)
+        u = 1 - (x4 / (3 * x2 ** 2))
+        if r == 0:
+            us = u
+            es = e
+        else:
+            us = np.append(us, u)
+            es = np.append(es, e)
+
+    dir = "data/dataset_1nn/"
+    if check_2nn:
+        dir = "data/dataset_2nn/"
+
+    return file_name, hs, us, es
 
 
 def transverse_ising_sparse_DFT_lanczos_method(
