@@ -25,6 +25,7 @@ function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::F
     end
     ham_0+=4*j_1,"Sx",n-1,"Sx",n #1 nearest neighbours
     if pbc #if periodic boundary condition
+        
         if two_nn
             ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
         end
@@ -141,6 +142,7 @@ function initialize_hamiltonian(j_1::Float64,j_2::Float64,omega::Float64,hs::Arr
     for i=1:n-2
         ham_0+=4*j_1,"Sx",i,"Sx",i+1 #1 nearest neighbours
         if two_nn
+            #println("2NN INTERACTION")
             ham_0+=4*j_2,"Sx",i,"Sx",i+2 #2 nearest neighbours
         end
     #    h_i=rand(Uniform(0,h_max))
@@ -148,14 +150,16 @@ function initialize_hamiltonian(j_1::Float64,j_2::Float64,omega::Float64,hs::Arr
     #    hamiltonian+=h_i,"Sz",i # external random field
     end
     ham_0+=4*j_1,"Sx",n-1,"Sx",n #1 nearest neighbours
-    if two_nn
-        ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
+    if pbc
+        #println("PERIODIC IS ON") 
+        if two_nn
+            ham_0+=4*j_2,"Sx",n-1,"Sx",1 #2 nearest neighbours
+        end
+        ham_0+=4*j_1,"Sx",n,"Sx",1 #1 nearest neighbours
+        if two_nn
+            ham_0+=4*j_2,"Sx",n,"Sx",2 #2 nearest neighbours
+        end
     end
-    ham_0+=4*j_1,"Sx",n,"Sx",1 #1 nearest neighbours
-    if two_nn
-        ham_0+=4*j_2,"Sx",n,"Sx",2 #2 nearest neighbours
-    end
-
     #external potential
     ham_ext=OpSum()
     for j=1:n
@@ -308,12 +312,13 @@ function dmrg_nn_ising_input_output_map(linkdims::Int64,sweep::Int64,n::Int64,j_
 end
 
 
-function dmrg_nn_ising_binder_cumulant(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64,set_noise::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}},m_4::ITensors.MPO)
+function dmrg_nn_ising_binder_cumulant(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,omega::Float64,h_max::Float64,two_nn::Bool,pbc::Bool,hs::Array{Float64},nreplica::Int64,set_noise::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}},m_4::ITensors.MPO,m_2::ITensors.MPO)
 
     #fix the sites
     #sites=siteinds("S=1/2",n) 
     #fix the representation
     #define the universal part of the hamiltonian
+    println("check two_nn=",two_nn)
     h=initialize_hamiltonian(j_1,j_2,omega,hs,two_nn,pbc,sites)
     
     # energy values
@@ -327,12 +332,11 @@ function dmrg_nn_ising_binder_cumulant(linkdims::Int64,sweep::Int64,n::Int64,j_1
     end
     energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
     
-    xx=4*correlation_matrix(psi,"Sx","Sx")
-    x_2=mean(xx)^2
+    x_2=inner(psi',m_2,psi)
     x_4=inner(psi',m_4,psi)
 
-    
-    return 1-(x_4/(3*x_2))
+    u=1-((x_4)/(3*x_2^2))    
+    return x_4,x_2,u
 end
 
 

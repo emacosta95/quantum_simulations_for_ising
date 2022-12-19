@@ -4,7 +4,7 @@ from src.utils_sparse_diag import binder_cumulant_computation
 
 h_max = [1.0, 2.0, 4.0, 5.44, 6.0, 7.0, 8.0]
 n_dataset = 100
-ls = [6, 8, 10, 12, 14, 16]
+ls = [6, 8, 10]
 j1 = -1
 j2 = -1
 u = {}
@@ -18,7 +18,7 @@ for l in ls:
             l=l,
             j1=j1,
             j2=j1,
-            pbc=True,
+            pbc=False,
             z_2=False,
             file_name="None",
             check_2nn=True,
