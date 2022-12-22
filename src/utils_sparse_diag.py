@@ -17,11 +17,23 @@ from quspin.tools.lanczos import lanczos_full, lanczos_iter, lin_comb_Q_T, expm_
 
 def ising_coupling(
     adj: Dict, l: int, basis: quspin.basis, direction: str
-) -> quspin.operators.hamiltonian:
+) -> Tuple[quspin.operators.hamiltonian, Dict[quspin.operators.quantum_LinearOperator]]:
 
     coupling = []
+    f_density_op = {}
     for i, j in adj.keys():
-        coupling.add([adj[i, j], i, j])
+        coupling.add([adj[(i, j)], i, j])
+        c_density = [adj[(i, j)], i, j]
+        c_static = [direction, c_density]
+        op_density = quantum_LinearOperator(
+            c_static,
+            basis=basis,
+            dtype=np.float64,
+            check_symm=False,
+            check_herm=False,
+            check_pcon=False,
+        )
+        f_density_op[(i, j)](op_density)
     static = [[direction, coupling]]
     dynamic = []
 
@@ -34,7 +46,7 @@ def ising_coupling(
         check_herm=False,
         check_pcon=False,
     )
-    return ham
+    return ham, f_density_op
 
 
 def ising_external_field(
@@ -102,6 +114,16 @@ def lanczos_method(
     psi_GS_lanczos = lin_comb_Q_T(v[:, 0], q_t)
 
     return e[0], psi_GS_lanczos
+
+
+def functional_f(
+    psi: np.array, l: int, f_density_op: List[quspin.operators.quantum_LinearOperator]
+):
+
+    f_density = np.zeros((l, l))
+    for i, j in f_density_op.keys():
+        f_density[i, j] = f_density_op[(i, j)].expt_value(psi)
+    return f_density
 
 
 def density_of_functional_pbc(
@@ -188,8 +210,8 @@ def compute_binder_cumulant(l: int, basis: quspin.basis):
             for k in range(l):
                 for q in range(l):
                     coupling_x4.append([1, i, j, k, q])
-    op_x2 = ["xx", coupling_x2]
-    op_x4 = ["xxxx", coupling_x4]
+    op_x2 = ["zz", coupling_x2]
+    op_x4 = ["zzzz", coupling_x4]
     static_x2 = [op_x2]
     static_x4 = [op_x4]
 
@@ -334,9 +356,9 @@ def binder_cumulant_computation(
         h = [[hs[r, k], k] for k in range(l)]  # external field
         eps_h = [[eps_breaking, k] for k in range(l)]
         if check_2nn:
-            static = [["xx", j_1nn], ["xx", j_2nn], ["z", h]]  # , ["x", eps_h]]
+            static = [["zz", j_1nn], ["zz", j_2nn], ["x", h]]  # , ["x", eps_h]]
         else:
-            static = [["xx", j_1nn], ["z", h], ["x", eps_h]]
+            static = [["zz", j_1nn], ["x", h], ["z", eps_h]]
         dynamic = []
         ham = hamiltonian(
             static,

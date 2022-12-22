@@ -11,12 +11,13 @@ BLAS.set_num_threads(10)
 seed=125
 linkdims=200
 
-sweep=20
-n=[8,10,12,14,16]
+sweep=10
+n=[16,24,32,40]
 j_coupling=-1.
 omega=0.
-hmaxs=[2*exp(1)-0.5,2*exp(1)-0.25,2*exp(1),2*exp(1)+0.25,2*exp(1)+0.5]
-hmaxs=[2.0,2.25,2.5,2.6,2.71,2.75,3.0,3.25,3.5,3.75,4.0,4.25,4.5,4.75,5.0,5.25,5.44,5.5,5.75,6.0,6.25,6.5,6.75,7.0]
+#hmaxs=[2*exp(1)-0.1 + 0.01*f for f=10:20]
+#hmaxs=[3.5,3.75,4.0,4.25,4.5,4.75,5.0,5.25,5.44,5.5,5.75,6.0,6.25,6.5,6.75,7.0]
+hmaxs=[2*exp(1)-1.1+0.1*f for f=1:31]
 #hmaxs=LinRange(0.5,1.5,100)
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=100
@@ -57,7 +58,7 @@ for k=1:length(n)
         psi0=randomMPS(sites,init_bonddim) #initialize the product state
         for j=1:length(hmaxs)
                 #name file
-                namefile="data/check_the_2nn_phase_transition/151222/binder_cumulant_obc_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
+                namefile="data/check_the_2nn_phase_transition/221222/binder_cumulant_periodic_2nn_$(n[k])_l_$(hmaxs[j])_h_$(ndata)_n.npz"
                 u_4=zeros(Float64,(ndata))
                 u_2=zeros(Float64,(ndata))
                 u=zeros(Float64,(ndata))

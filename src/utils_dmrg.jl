@@ -6,6 +6,60 @@ using Plots
 using NPZ
 using ProgressBars
 
+function ising_hamiltonian(j::Any,omega::Array{Float64},hs::Array{Float64},sites::Vector{Index{Int64}})
+    #initialize the hamiltonian
+    ham_0=OpSum()
+    n=length(hs)
+    
+    #coupling term
+
+    # j is a adj matrix defined
+    # with dimensions n,2(jdx,j_value), dim_jdx
+    for i=1:n
+        jdx,j_value=j(i,n)
+        for r in jdx
+            ham_0+=4*j_value,"Sz",i,"Sz",r
+        end
+    end
+
+    #external potential
+    for i=1:n
+        ham_0+=2*hs[i],"Sx",i # external random field
+    end
+    # external longitudinal field
+    for i=1:n
+        ham_0+=2*omega[i],"Sz",i # external random field
+    end
+    hamiltonian=ham_0+ham_ext
+
+    # initialize the hamiltonian
+    # as matrix product operator
+    h=MPO(hamiltonian,sites) #define the hamiltonian
+    return h
+end 
+
+function compute_correlation(direction::String,psi::ITensors.MPS)
+    return 4*correlation_matrix(psi,direction,direction)
+end
+
+ 
+
+function dft_value(j::Any,n::Int64,xx::Matrix{Float64})
+    f_op=zeros((n,n))
+    for i=1:n
+        jdx,j_value=j(i,n)
+        for r in jdx
+            f_op[i,r]=j_value*xx[i,r]
+        end
+    end
+    return f_op
+end
+
+function magnetization(psi::ITensors.MPS,direction::String)
+    return 2*expect(psi,direction)
+
+
+
 function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,omega::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}})
 
     #fix the seed
@@ -38,16 +92,6 @@ function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::F
     for j=1:n
         ham_0+=2*hs[j],"Sz",j # external random field
     end
-
-    # for j=1:n
-    #     ham_ext+=2*eps_breaking,"Sx",j # to
-    # end 
-    #ham_ext+=2*eps_breaking,"Sx",1
-    #fix the invariance problem
-    #end
-    # collect the external
-    # field
-    #push!(v_tot,potential)
 
     hamiltonian=ham_0
 
@@ -318,7 +362,6 @@ function dmrg_nn_ising_binder_cumulant(linkdims::Int64,sweep::Int64,n::Int64,j_1
     #sites=siteinds("S=1/2",n) 
     #fix the representation
     #define the universal part of the hamiltonian
-    println("check two_nn=",two_nn)
     h=initialize_hamiltonian(j_1,j_2,omega,hs,two_nn,pbc,sites)
     
     # energy values

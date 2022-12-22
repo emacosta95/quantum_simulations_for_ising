@@ -2,9 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from src.utils_sparse_diag import binder_cumulant_computation
 
-h_max = [1.0, 2.0, 4.0, 5.44, 6.0, 7.0, 8.0]
-n_dataset = 100
-ls = [6, 8, 10]
+h_max = np.linspace(2 * np.exp(1) - 2, 2 * np.exp(1) + 5, 40)
+n_dataset = 3000
+ls = [5, 6, 7, 8, 9, 10]
 j1 = -1
 j2 = -1
 u = {}
@@ -18,7 +18,7 @@ for l in ls:
             l=l,
             j1=j1,
             j2=j1,
-            pbc=False,
+            pbc=True,
             z_2=False,
             file_name="None",
             check_2nn=True,
@@ -26,7 +26,7 @@ for l in ls:
         )
         u[(l, h)] = us
         np.savez(
-            f"data/check_the_2nn_phase_transition/151222/binder_cumulant_range_h_{len(h_max)}_range_l_{ls[0]}-{ls[-1]}",
+            f"data/check_the_2nn_phase_transition/201222/binder_cumulant_range_h_{(h_max[0]):.2f}-{(h_max[-1]):.2f}_range_l_{ls[0]}-{ls[-1]}",
             hmax=h_max,
             ls=ls,
             u=u,
