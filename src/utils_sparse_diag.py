@@ -17,14 +17,14 @@ from quspin.tools.lanczos import lanczos_full, lanczos_iter, lin_comb_Q_T, expm_
 
 def ising_coupling(
     adj: Dict, l: int, basis: quspin.basis, direction: str
-) -> Tuple[quspin.operators.hamiltonian, Dict[quspin.operators.quantum_LinearOperator]]:
+) -> Tuple[quspin.operators.hamiltonian, Dict]:
 
     coupling = []
     f_density_op = {}
     for i, j in adj.keys():
-        coupling.add([adj[(i, j)], i, j])
-        c_density = [adj[(i, j)], i, j]
-        c_static = [direction, c_density]
+        coupling.append([adj[(i, j)], i, j])
+        c_density = [[adj[(i, j)], i, j]]
+        c_static = [[direction, c_density]]
         op_density = quantum_LinearOperator(
             c_static,
             basis=basis,
@@ -33,7 +33,7 @@ def ising_coupling(
             check_herm=False,
             check_pcon=False,
         )
-        f_density_op[(i, j)](op_density)
+        f_density_op[(i, j)] = op_density
     static = [[direction, coupling]]
     dynamic = []
 
@@ -55,7 +55,7 @@ def ising_external_field(
 
     coupling = []
     for i in range(l):
-        coupling.add([h[i], i])
+        coupling.append([h[i], i])
     static = [[direction, coupling]]
     dynamic = []
 
@@ -116,9 +116,7 @@ def lanczos_method(
     return e[0], psi_GS_lanczos
 
 
-def functional_f(
-    psi: np.array, l: int, f_density_op: List[quspin.operators.quantum_LinearOperator]
-):
+def functional_f(psi: np.array, l: int, f_density_op: Dict):
 
     f_density = np.zeros((l, l))
     for i, j in f_density_op.keys():
@@ -385,7 +383,7 @@ def binder_cumulant_computation(
     if check_2nn:
         dir = "data/dataset_2nn/"
 
-    return file_name, hs, us, es
+    return file_name, hs, us, x2, x4
 
 
 def transverse_ising_sparse_DFT_lanczos_method(

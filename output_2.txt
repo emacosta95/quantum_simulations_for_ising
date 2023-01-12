@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/ecosta/quantum_simulations_for_ising/binder_cumulant_computation.py", line 3, in <module>
+    from src.utils_sparse_diag import binder_cumulant_computation
+  File "/home/ecosta/quantum_simulations_for_ising/src/utils_sparse_diag.py", line 20, in <module>
+    ) -> Tuple[quspin.operators.hamiltonian, Dict[quspin.operators.quantum_LinearOperator]]:
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/typing.py", line 275, in inner
+    return func(*args, **kwds)
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/typing.py", line 833, in __getitem__
+    _check_generic(self, params, self._nparams)
+  File "/opt/anaconda3/envs/dft_env/lib/python3.9/site-packages/typing_extensions.py", line 104, in _check_generic
+    raise TypeError(f"Too {'many' if alen > elen else 'few'} parameters for {cls};"
+TypeError: Too few parameters for typing.Dict; actual 1, expected 2
