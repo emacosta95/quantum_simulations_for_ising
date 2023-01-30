@@ -251,6 +251,12 @@ def transverse_ising_sparse_DFT(
     text_z2 = ""
     text_field = f"{h_max:.2f}_h"
 
+    dir = "data/dataset_1nn/"
+    if check_2nn:
+        dir = "data/dataset_2nn/"
+
+    file_name = dir + file_name + text_z2 + f"_{l}_l_" + text_field + f"_{n_dataset}_n"
+
     hs = hs
     # the basis of the representation
     basis = spin_basis_1d(l)
@@ -265,7 +271,7 @@ def transverse_ising_sparse_DFT(
         if check_2nn:
             j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
 
-    for r in trange(n_dataset):
+    for r in trange(n_dataset+1):
 
         h = [[hs[r, k], k] for k in range(l)]  # external field
         eps_h = [[eps_breaking, k] for k in range(l)]
@@ -300,18 +306,20 @@ def transverse_ising_sparse_DFT(
             zs = np.append(zs, z.reshape(1, -1), axis=0)
             fs_dens = np.append(fs_dens, f_dens.reshape(1, -1), axis=0)
             es = np.append(es, e)
-    if z_2:
-        text_z2 = "_augmentation"
-        fs_dens = np.append(fs_dens, fs_dens, axis=0)
-        zs = np.append(zs, -1 * zs, axis=0)
 
-    dir = "data/dataset_1nn/"
-    if check_2nn:
-        dir = "data/dataset_2nn/"
+        if z_2:
+            text_z2 = "_augmentation"
+            fs_dens = np.append(fs_dens, fs_dens, axis=0)
+            zs = np.append(zs, -1 * zs, axis=0)
 
-    file_name = (
-        dir + file_name + text_z2 + f"_{l}_l_" + text_field + f"_{fs_dens.shape[0]}_n"
-    )
+        if r % 100==0 :
+            np.savez(
+                file_name,
+                potential=hs,
+                density=zs,
+                density_F=fs_dens,
+                energy=es,
+            )
 
     return file_name, hs, zs, fs_dens, es
 
