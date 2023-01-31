@@ -179,7 +179,7 @@ for i in trange(args.n_dataset + 1):
     funcs[i] = functional_f(psi=psi, l=args.l, f_density_op=f_op)
     es[i] = e
 
-    if i % 1000 == 0:
+    if i % 100 == 0:
 
         file_name = (
             "data/dataset_long_range/"
@@ -195,6 +195,6 @@ for i in trange(args.n_dataset + 1):
             file_name,
             potential=hs[:i],
             density=zs[:i],
-            density_F=np.average(funcs, axis=-1)[:i],
+            density_F=np.sum(funcs, axis=-1)[:i],
             energy=es[:i],
         )

@@ -91,7 +91,7 @@ def get_gs(
     if eightype == "Lanczos":
         e, psi = lanczos_method(hamiltonian=ham, basis=basis, dimension=lanczos_dim)
     else:
-        e, psi = ham.eigsh(k=1)
+        e, psi = ham.eigsh(k=1, which="SA")
     return e, psi
 
 
@@ -271,7 +271,7 @@ def transverse_ising_sparse_DFT(
         if check_2nn:
             j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
 
-    for r in trange(n_dataset+1):
+    for r in trange(n_dataset + 1):
 
         h = [[hs[r, k], k] for k in range(l)]  # external field
         eps_h = [[eps_breaking, k] for k in range(l)]
@@ -312,7 +312,7 @@ def transverse_ising_sparse_DFT(
             fs_dens = np.append(fs_dens, fs_dens, axis=0)
             zs = np.append(zs, -1 * zs, axis=0)
 
-        if r % 100==0 :
+        if r % 100 == 0:
             np.savez(
                 file_name,
                 potential=hs,
