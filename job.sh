@@ -28,4 +28,4 @@ echo "Running on "`hostname`
 #=============================
 # running
 
-srun python dft_dataset.py --file_name=train_without_augmentation/unet_pbc --l=16 --pbc --check_2nn --h_max=5.6 --seed=56 --n_dataset=150000 
+srun python dft_dataset.py --file_name=train_without_augmentation/unet_pbc --l=18 --pbc --check_2nn --h_max=5.6 --seed=56 --n_dataset=100000 
