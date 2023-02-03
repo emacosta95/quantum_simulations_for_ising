@@ -318,7 +318,7 @@ def transverse_ising_sparse_DFT(
                 potential=hs,
                 density=zs,
                 density_F=fs_dens,
-                energy=es,
+                energy=es / l,
             )
 
     return file_name, hs, zs, fs_dens, es

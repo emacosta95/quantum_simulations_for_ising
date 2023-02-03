@@ -9,20 +9,20 @@ using ProgressBars
 BLAS.set_num_threads(10)
 # parameters
 seed=425
-linkdims=200
+linkdims=400
 sweep=20
-n=[128,256]
+n=[64]
 #n=[10]
 j_coupling=-1.
 omega=0.
 #hmaxs=[2*exp(1)]
-hmaxs=LinRange(2*exp(1)-0.1,2*exp(1)+0.1,11)
+hmaxs=[5.6]
 #hmaxs=[1.,1.5,2.,2.5,3.,3.5,4.,4.5,5.,2*exp(1),5.5,6.,6.5,7.,7.5]
 #hmaxs=[5.44]
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
-ndata=3000
+ndata=10
 two_nn=true
-pbc=false
+pbc=true
 set_noise=false
 nreplica=0
 #namefile="data/dataset_dmrg/l_{}_h_{}_ndata_{}".format(n,h_max,ndata)
@@ -39,11 +39,11 @@ Random.seed!(seed)
 # different sizes
 for j=1:length(n)
         sites=siteinds("S=1/2",n[j]) #fix the basis representation
-        init_bonddim=n[j]
+        init_bonddim=100*n[j]
         psi0=randomMPS(sites,init_bonddim) #initialize the product state
         for k=1:length(hmaxs)
                 #name file
-                namefile="data/check_the_2nn_phase_transition/211222/test_obc_$(n[j])_l_$(hmaxs[k])_h_$(ndata)_n.npz"
+                namefile="data/dataset_2nn/final_test/test_pbc_$(n[j])_l_$(hmaxs[k])_h_$(ndata)_n.npz"
                 e_tot = zeros(Float64,(ndata))
                 v_tot = zeros(Float64,(ndata,n[j]))
                 f_tot=zeros(Float64,(ndata))
@@ -55,7 +55,8 @@ for j=1:length(n)
 
                         # initialize the field
                         h=rand(Uniform(0.,hmaxs[k]),n[j])
-                        energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising_composable(linkdims,sweep,n[j],j_coupling,j_coupling,omega,hmaxs[k],two_nn,h,pbc,nreplica,set_noise,psi0,sites)
+                        #energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising_composable(linkdims,sweep,n[j],j_coupling,j_coupling,omega,hmaxs[k],two_nn,h,pbc,nreplica,set_noise,psi0,sites)
+                        energy,potential,z,x,dens_f,f,xx=dmrg_nn_ising(linkdims,sweep,n[j],j_coupling,j_coupling,hmaxs[k],omega,two_nn,h,pbc,psi0,sites)
                         
                         # cumulate
                         e_tot[i]=energy

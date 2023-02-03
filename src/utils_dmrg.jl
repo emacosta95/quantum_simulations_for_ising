@@ -57,7 +57,7 @@ end
 
 function magnetization(psi::ITensors.MPS,direction::String)
     return 2*expect(psi,direction)
-
+end
 
 
 function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::Float64,h_max::Float64,omega::Float64,two_nn::Bool,hs::Array{Float64},pbc::Bool,psi0::ITensors.MPS,sites::Vector{Index{Int64}})

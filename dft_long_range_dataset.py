@@ -122,18 +122,23 @@ class LongRange:
     def long_range(self, i: int, l: int) -> Tuple[List[int], List[float]]:
         jdx = []
         values = []
-        for j in range(l):
+        for j in range(-int(l / 2), int(l / 2)):
             jdx.append((j + i) % l)  # append the pbc index
             # the traslational invariance leads to a i-independent relation
             if j == 0:
                 values.append(
-                    self.j0 / (l ** self.alpha) + self.j0 / ((2 * l) ** self.alpha)
+                    0.5 * self.j0 / ((np.abs(j - l)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j + l)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j + 2 * l)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j - 2 * l)) ** self.alpha)
                 )
             else:
                 values.append(
-                    self.j0 / ((l + j) ** self.alpha)
-                    + self.j0 / ((j) ** self.alpha)
-                    + self.j0 / ((2 * l + j) ** self.alpha)
+                    0.5 * self.j0 / ((np.abs(j)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j - l)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j + l)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j + 2 * l)) ** self.alpha)
+                    + 0.5 * self.j0 / ((np.abs(j - 2 * l)) ** self.alpha)
                 )
         return jdx, values
 
