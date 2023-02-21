@@ -271,7 +271,7 @@ def transverse_ising_sparse_DFT(
         if check_2nn:
             j_2nn = [[j2, i, (i + 2) % l] for i in range(l)]  # pbc
 
-    for r in trange(n_dataset + 1):
+    for r in trange(n_dataset):
 
         h = [[hs[r, k], k] for k in range(l)]  # external field
         eps_h = [[eps_breaking, k] for k in range(l)]
@@ -318,7 +318,7 @@ def transverse_ising_sparse_DFT(
                 potential=hs,
                 density=zs,
                 density_F=fs_dens,
-                energy=es/l,
+                energy=es / l,
             )
 
     return file_name, hs, zs, fs_dens, es
@@ -468,21 +468,19 @@ def transverse_ising_sparse_DFT_lanczos_method(
             zs = np.append(zs, z.reshape(1, -1), axis=0)
             fs_dens = np.append(fs_dens, f_dens.reshape(1, -1), axis=0)
             es = np.append(es, e)
-            
+
         if r % 100 == 0:
             np.savez(
                 file_name,
                 potential=hs,
                 density=zs,
                 density_F=fs_dens,
-                energy=es/l,
+                energy=es / l,
             )
     if z_2:
         text_z2 = "_augmentation"
         fs_dens = np.append(fs_dens, fs_dens, axis=0)
         zs = np.append(zs, -1 * zs, axis=0)
-        
-            
 
     return file_name, hs, zs, fs_dens, es
 

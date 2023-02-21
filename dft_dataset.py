@@ -107,12 +107,12 @@ parser.add_argument(
 args = parser.parse_args()
 np.random.seed(args.seed)
 print("n_dataset=", args.n_dataset)
-hs = np.random.uniform(0, args.h_max, size=(args.n_dataset, args.l))
+hs = np.random.uniform(0, args.h_max, size=(args.n_dataset + 1, args.l))
 if not (args.lanczos):
     file_name, hs, zs, fs_dens, es = transverse_ising_sparse_DFT(
         h_max=args.h_max,
         hs=hs,
-        n_dataset=args.n_dataset,
+        n_dataset=args.n_dataset + 1,
         l=args.l,
         j1=args.j1,
         j2=args.j2,

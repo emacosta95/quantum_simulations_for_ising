@@ -6,6 +6,33 @@ using Plots
 using NPZ
 using ProgressBars
 
+function correlation_per_site(op_1::String,op_2::String,sites::Vector{Index{Int64}},psi::ITensors.MPS,i::Int64,j::Int64)
+
+    psi_1=copy(psi)
+    psi_2=copy(psi)
+    sx_i=op(op_1,sites[i])
+    sx_j=op(op_2,sites[j])
+
+    if i<j
+        orthogonalize!(psi_1,i)
+        orthogonalize!(psi_2,i)
+    else
+        orthogonalize!(psi_1,j)
+        orthogonalize!(psi_2,j)
+    end
+    
+    wf=psi_1[i]*sx_i
+    noprime!(wf)
+    psi_1[i]=wf
+
+    wf=psi_1[j]*sx_j
+    noprime!(wf)
+    psi_1[j]=wf
+
+    return inner(psi_1,psi_2)
+end
+
+
 function ising_hamiltonian(j::Any,omega::Array{Float64},hs::Array{Float64},sites::Vector{Index{Int64}})
     #initialize the hamiltonian
     ham_0=OpSum()
@@ -114,28 +141,28 @@ function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::F
     energy, psi = dmrg(h,psi0, sweeps,outputlevel=1)
 
     #compute the transverse magnetization and the density functional per site 
-    z=2*expect(psi,"Sz")
-    x=2*expect(psi,"Sx")
+    z=2*expect(psi,"Sz") 
+    x=2*expect(psi,"Sx") 
     
-    xx=4*correlation_matrix(psi,"Sx","Sx")
+    #xx=4*correlation_matrix(psi,"Sx","Sx") 
     x_1nn=zeros(Float64,(n))
     x_2nn=zeros(Float64,(n))   
     for j=1:n
         if j==n 
-            # push!(x_1nn,xx[j,1])
-            # push!(x_,xx[j,2])
-            x_1nn[j]=xx[j,1]
-            x_2nn[j]=xx[j,2]
+            # push!(x_1nn,xx[j,1]) 
+            # push!(x_,xx[j,2]) 
+            x_1nn[j]=correlation_per_site("Sx","Sx",sites,psi,j,1) #xx[j,1] 
+            x_2nn[j]=correlation_per_site("Sx","Sx",sites,psi,j,2) #xx[j,2] 
         elseif j==n-1
-            # push!(x_1nn,xx[j,j+1])
-            # push!(x_2nn,xx[j,1])
-            x_1nn[j]=xx[j,j+1]
-            x_2nn[j]=xx[j,1]
+            # push!(x_1nn,xx[j,j+1]) 
+            # push!(x_2nn,xx[j,1]) 
+            x_1nn[j]=correlation_per_site("Sx","Sx",sites,psi,j,j+1) #xx[j,j+1] 
+            x_2nn[j]=correlation_per_site("Sx","Sx",sites,psi,j,1)   #xx[j,1] 
         else
-            # push!(x_1nn,xx[j,j+1])
-            # push!(x_2nn,xx[j,j+2])
-            x_1nn[j]=xx[j,j+1]
-            x_2nn[j]=xx[j,j+2]
+            # push!(x_1nn,xx[j,j+1]) 
+            # push!(x_2nn,xx[j,j+2]) 
+            x_1nn[j]=correlation_per_site("Sx","Sx",sites,psi,j,j+1)   #xx[j,j+1] 
+            x_2nn[j]=correlation_per_site("Sx","Sx",sites,psi,j,j+2)   #xx[j,j+2] 
         end
     end
     if two_nn
@@ -148,7 +175,7 @@ function dmrg_nn_ising(linkdims::Int64,sweep::Int64,n::Int64,j_1::Float64,j_2::F
 
     #print("type of energy/n ",typeof(h),"\n")    
     # alternative method
-    return energy/n, hs,z,x,dens_f,f,xx
+    return energy/n, hs,z,x,dens_f,f
 end
 
 

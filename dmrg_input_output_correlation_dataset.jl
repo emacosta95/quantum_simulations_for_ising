@@ -12,14 +12,14 @@ seed=125
 linkdims=200
 init_bonddim=256
 sweep=20
-n=[16,24,32,64,96,128,136,256]
+n=[256]
 j_coupling=-1.
 omega=0.
 hmaxs=1.#[exp(1)]
 #hmaxs=LinRange(0.1,12.,nlinspace) # for studying the phase transition
 ndata=1
 nreplica=1
-two_nn=false
+two_nn=true
 pbc=true
 set_noise=false
 
