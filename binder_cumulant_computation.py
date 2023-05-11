@@ -2,11 +2,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 from src.utils_sparse_diag import binder_cumulant_computation
 
-h_max = np.linspace(
-    0.1, 4, 10
-)  # np.linspace(2 * np.exp(1) - 2, 2 * np.exp(1) + 2, 200)
-n_dataset = 1000
-ls = [5, 6, 7, 8, 9, 10, 12, 14]
+h_max = np.linspace(2, 4, 200)  # np.linspace(2 * np.exp(1) - 2, 2 * np.exp(1) + 2, 200)
+n_dataset = 3000
+ls = [6, 8, 10, 12, 14]
 j1 = 1
 j2 = 1
 u = {}

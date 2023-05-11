@@ -91,7 +91,7 @@ args = parser.parse_args()
 
 
 # define both the field and the coupling vector
-
+torch.set_num_threads(3)
 
 if args.train:
     print("train")
@@ -152,7 +152,7 @@ if args.train:
         ms_tot = np.append(ms_tot, -1 * ms_tot, axis=0)
         fm_tot = np.append(fm_tot, fm_tot, axis=0)
         f_tot = np.append(f_tot, f_tot, axis=0)
-        hs_tot=np.append(hs_tot,hs_tot,axis=0)
+        hs_tot = np.append(hs_tot, hs_tot, axis=0)
 
     p = np.random.permutation(ms_tot.shape[0])
     ms_tot = ms_tot[p]

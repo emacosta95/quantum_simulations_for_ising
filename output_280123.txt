@@ -1,6 +1,0 @@
-n_dataset= 11
-  0%|          | 0/12 [00:00<?, ?it/s]  8%|▊         | 1/12 [03:10<35:00, 190.96s/it] 17%|█▋        | 2/12 [05:21<25:51, 155.17s/it] 25%|██▌       | 3/12 [06:30<17:25, 116.17s/it] 33%|███▎      | 4/12 [07:56<13:52, 104.10s/it] 42%|████▏     | 5/12 [08:48<09:56, 85.24s/it]  50%|█████     | 6/12 [09:57<07:59, 79.91s/it] 58%|█████▊    | 7/12 [11:07<06:23, 76.72s/it] 67%|██████▋   | 8/12 [12:32<05:16, 79.14s/it] 75%|███████▌  | 9/12 [13:56<04:02, 80.86s/it] 83%|████████▎ | 10/12 [15:04<02:33, 76.76s/it] 92%|█████████▏| 11/12 [16:19<01:16, 76.35s/it] 92%|█████████▏| 11/12 [16:19<01:29, 89.08s/it]
-Traceback (most recent call last):
-  File "/home/ecosta/quantum_simulations_for_ising/dft_long_range_dataset.py", line 162, in <module>
-    h=hs[i], l=args.l, basis=spin_basis_1d(args.l), direction="x"
-IndexError: index 11 is out of bounds for axis 0 with size 11
