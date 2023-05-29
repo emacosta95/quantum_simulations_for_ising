@@ -18,6 +18,17 @@ from quspin.tools.lanczos import lanczos_full, lanczos_iter, lin_comb_Q_T, expm_
 def ising_coupling(
     adj: Dict, l: int, basis: quspin.basis, direction: str
 ) -> Tuple[quspin.operators.hamiltonian, Dict]:
+    """Implement the Ising coupling of the Spin Hamiltonian from the Adjacency Matrix
+
+    Args:
+        adj (Dict): Adjacency Matrix in Dictionary form {value[(index_1,index_2)]}
+        l (int): number of Spin elements
+        basis (quspin.basis): basis of the Hilbert Space (quspin requirement)
+        direction (str): label of the operator of the Coupling (e.g. 'xx' for the xx coupling)
+
+    Returns:
+        Tuple[quspin.operators.hamiltonian, Dict]: The coupling term in the hamiltonian form and the dictionary of the Universal operator based on the coupling term
+    """
 
     coupling = []
     f_density_op = {}
@@ -72,7 +83,15 @@ def ising_external_field(
 
 
 def adj_generator(l: int, f: Callable) -> Dict:
+    """Generate the Adjacency matrix by calling a Edge function f(index of the node, number of nodes)-> list of nodes connected, values of the Edges
 
+    Args:
+        l (int): number of spin elemets
+        f (Callable): Edge function with the structure f(index of the node, number of nodes)-> (list of nodes connected, values of the Edges)
+
+    Returns:
+        Dict: Adjacency Matrix with a Dictionary form
+    """
     adj = {}
     for i in range(l):
         jdx, values = f(i, l)
@@ -84,9 +103,23 @@ def adj_generator(l: int, f: Callable) -> Dict:
 def get_gs(
     ham: quspin.operators.hamiltonian,
     eightype: str,
-    lanczos_dim: Optional[int] = None,
+    lanczos_dim: Optional[int] = 20,
     basis: quspin.basis = None,
+    k: int = 1,
 ) -> Tuple[float, np.ndarray]:
+    """Compute the gs Energy and the ground state (e,psi)
+
+    Args:
+        ham (quspin.operators.hamiltonian): Hamiltonian that we want to diagonalize
+        eightype (str): it could be either Lanczos or Standard. If Lanczos it perform a Lanczos diagonalization
+        lanczos_dim (Optional[int], optional): Only in case of Lanczos eightype. Dimension of the Subspace in the Lanczos algorithm. Defaults to 20.
+        basis (quspin.basis, optional): Only in case of Lanczos eightype. Basis of the Hilbert Space (quspin requirement).
+        Defaults to None.
+        k (int): number of eigenvalues of the Hamiltonian (e.g. if k=3 it computes the first 3 eigenvalues and eigenstates). Defaults to 1.
+
+    Returns:
+        Tuple[float, np.ndarray]: array of eigenvalues, array of eigenstates
+    """
 
     if eightype == "Lanczos":
         e, psi = lanczos_method(hamiltonian=ham, basis=basis, dimension=lanczos_dim)
@@ -116,8 +149,17 @@ def lanczos_method(
     return e[0], psi_GS_lanczos
 
 
-def functional_f(psi: np.array, l: int, f_density_op: Dict):
+def functional_f(psi: np.array, l: int, f_density_op: Dict) -> np.ndarray:
+    """Compute the universal functional F realization from the Dictionary of the graph
 
+    Args:
+        psi (np.array): state where the average is computed
+        l (int): number of spin elements
+        f_density_op (Dict): Dictionary of the graph of the universal form as {Operator[(index, index)]}
+
+    Returns:
+        np.ndarray: The matrix of the expectation values of Operator[index,index]
+    """
     f_density = np.zeros((l, l))
     for i, j in f_density_op.keys():
         f_density[i, j] = f_density_op[(i, j)].expt_value(psi)
@@ -150,7 +192,20 @@ def density_of_functional_pbc(
     return exp_m
 
 
-def compute_magnetization(psi: np.array, l: int, basis: quspin.basis, direction: str):
+def compute_magnetization(
+    psi: np.array, l: int, basis: quspin.basis, direction: str
+) -> List:
+    """Compute the expectation value of the vector of the local magnetization per site
+
+    Args:
+        psi (np.array): quantum state for the expectation
+        l (int): number of spin elements
+        basis (quspin.basis): Hilbert Space basis (quspin requirement)
+        direction (str): direction or label of the spin operator ('x','y','z')
+
+    Returns:
+        List: set of expectation value of the magnetization on each site
+    """
     # define the connection
     m = {}
     exp_m = []
@@ -171,7 +226,20 @@ def compute_magnetization(psi: np.array, l: int, basis: quspin.basis, direction:
     return exp_m
 
 
-def compute_correlation(psi: np.array, l: int, basis: quspin.basis, direction: str):
+def compute_correlation(
+    psi: np.array, l: int, basis: quspin.basis, direction: str
+) -> np.ndarray:
+    """Compute the correlation matrix of local spin operators
+
+    Args:
+        psi (np.array): quantum state for the expectation
+        l (int): number of spin elements
+        basis (quspin.basis): Hilber Space basis (quspin requirement)
+        direction (str): direction or label of the local spin operator ('x','y','z')
+
+    Returns:
+        np.ndarray: Correlation Matrix
+    """
     for i in range(l):
         exp_m_i = []
         for j in range(l):
